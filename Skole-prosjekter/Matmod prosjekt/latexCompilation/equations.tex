@@ -1,0 +1,56 @@
+
+
+\section{Deriving the modeling equations}
+\subsection*{Diffusion equation}
+Given the equations from the task \cite{task}, we quickly conclude that the diffusion of the neurotransmitters can be modeled by
+\begin{align}
+\label{eq:diffusion}
+\frac{dc}{dt} &= \kappa \nabla^2 c \\
+\label{eq:BC}
+\nabla c \cdot n &= g(t,c),
+\end{align}
+with the last equation being the Neumann boundary condition. In the equations, $c$ is the concentration of neurotransmitters, $\kappa$ is the diffusion constant and $g(t,c)$ is a boundary flux.
+
+
+\subsection{The binding process}
+First we look at the reversible chemical reaction
+\begin{align}
+\label{eq:boundNeurotransmitter}
+\text{R} + \text{N} \rightleftharpoons \text{RN},
+\end{align}
+where R is the number of receptors and N is the number of neurotransmitters.
+The reaction rates are $k_1$ to the right and $k_2$ to the left, being respectively the probability for the reactions to occur in their direction. 
+We get 3 ODE's from this chemical reaction:
+\begin{align*}
+\frac{d[\text{R}]}{dt} &= -k_1[\text{R}][\text{N}] + k_2[\text{RN}]\\
+\frac{d[\text{N}]}{dt} &= -k_1[\text{R}][\text{N}] + k_2[\text{RN}]\\
+\frac{d[\text{RN}]}{dt} &= k_1[\text{R}][\text{N}] - k_2[\text{RN}],
+\end{align*}
+where [R], [N] and [RN] are the concentrations of the receptors, neurotransmitters and the bound product of them.
+We may consider [N][R] the probability of a neurotransmitter meeting an unoccupied receptor, and $k_1$ the probability of the binding reaction happening. Likewise for $k_2$. Next, we insert $c$ for $[\text{N}]$.  Introducing $P^R$ as the probability of a receptor being unoccupied, and $(1-P^R)$ as the probability that the neurotransmitter is attached to the receptor leads to the following simplification \cite{holstad} 
+of the above ODE's:
+\begin{align}
+\label{eq:changeInConcentration}
+\frac{dc}{dt} &= -k_1cP^R + k_2(1-P^R)\\
+\label{eq:changeInPR}
+\frac{dP^R}{dt} &= -k_1cP^R + k_2(1-P^R).
+\end{align}
+
+\subsection{Glia cells}
+\begin{align*}
+\text{T} + \text{N} \rightleftharpoons \text{TN} \rightarrow \text{N}_{\text{inactive}} + \text{T}.
+\end{align*}
+Here, we define $k_3, k_4, k_5$ as the reaction rates of first rightward, first leftward, second rightward reactions.
+
+Similarly to the binding process, we get the following set of equations:
+\begin{align*}
+\kappa \nabla c \cdot n &= -k_3c P^T + k_4(1-P^T)\\
+\frac{dP^T}{dt} &= -k_3c P^T + (1-P^T)(k_4 + k_5).\\
+\end{align*}
+Combining these equations, we get
+\begin{align*}
+\kappa \nabla c \cdot n &= -c(k_1 P^R + k_3 P^T) + k_2 (1-P^R) + k_4 (1-P^T)    \\
+\frac{dP^R}{dt} &= -ck_1 P^R + k_2(1-P^R)\\
+\frac{dP^T}{dt} &= -ck_3 P^T + (k_4 + k_5)(1-P^T).\\
+\end{align*}
+

@@ -1,0 +1,25 @@
+1D Model with glia cells (1)
+
+We solved the 1D problem using finite element method, and matlab's ode45
+The modeling equation and boundary conditions were integrated into a system of equations represented by a single matrix equation.
+
+Here is a plot of the solution given certain initial values.
+As you can see from the legend, the plot shows the concentration of neurotransmitters at the 6 internal nodes, as well as Pa and Pb. Pa is the probability of a transporter node being availible at point a, while Pb is the probability of a receptor node being availible at point b.
+
+In this case, node n3 started at 1, while the other nodes started at 0. Pa and Pb both started at 1  as well. 
+
+-----------------------------------------------------
+N = 6 internal nodes
+C(0) = [0, 0, 1, 0, 0, 0]
+$P_a^T(0) = P_b^R(0) = 1$
+k1=k2=k3=k4=k5 = 0.5 
+kappa = 3
+a=0
+b=8 
+-----------------------------------------------------
+We also tried to solve the 2D problem using matlab's ode45, but were unable to get any stable results. No matter what we tried, our solutions tended to blow up.
+
+
+
+
+

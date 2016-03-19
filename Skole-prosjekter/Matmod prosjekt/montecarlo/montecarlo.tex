@@ -1,0 +1,39 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage[utf8]{inputenc}
+\usepackage{caption}
+\usepackage{subcaption}
+\title{Simulating a synaptic cleft using monte carlo methods}
+\author{Jon Christian Halvorsen }
+
+
+\begin{document}
+\maketitle
+
+\section*{Simulating a synaptic transmission using monte carlo methods}
+
+Since this project involves solving a lot of equations, and solving equations is a lot of hard work, we'll preliminary just try our hands on doing some simulations. We're doing a monte carlo simulation of diffusion in a cubic room scaled to represent a synaptic cleft. We release 5000 neurotransmitters in the middle of one side (wall $a$) and apply a brownian motian to each of the particles, thereby watching how it unfolds.
+
+In the simplest version we just scattered the neurotransmitters, confirming that they scatter nearly uniformly out in each 3 dimensions.
+
+The next step would be to lock all the elements inside a box (setting the flux out to zero) and implementing the dendrite wall with receptors. We call the dendrite wall $c$, opposite end of       $a$. We then assume:
+\begin{itemize}
+\item The probability of a neurotransmitter binding with a receptor is dependent on the distance from the dendrite wall (wall c) and how many of the receptors are already taken.
+\item The probability of a neurotransmitter disconnecting from the receptor is also quantifiable so we can get some form of equilibrium  (at least when all the walls are closed).
+\end{itemize}
+
+Implementing this is also rather straightforward. As a last step we factor in the process of clearing the cleft after the signal is sent. We assume:
+\begin{itemize}
+\item There exists GLIA-cells in walls $b$ and $d$.
+\item The two last walls are for now free, but have no flux out of them.
+\item The probability for a neurotransmitter to bind to a GLIA-cell is dependent on the distance to the cell.
+\item We also have a probability of "unbonding" with the GLIA-cell, and when we are the neurotransmitter is marked as inactive.
+\item All inactive neurotransmitters have a probability (dependent on distance) of going back into the axon, thus clearing the synaptic cleft one particle at the time.
+\item The probability of leaving the axon as an inactive neurotransmitter is equal to zero.
+\item 
+\end{itemize}
+
+
+\end{document}

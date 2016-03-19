@@ -1,0 +1,61 @@
+\documentclass[9pt]{extarticle}
+\usepackage{amsmath}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage[utf8]{inputenc}
+\usepackage{caption}
+\usepackage{subcaption}
+\title{Modeling a synaptic transmission, \\
+Mathematical modeling}
+\author{Group 9; \\
+Student \# 732064, 732095, 732078, 723818, 723980 }
+
+\begin{document}
+\maketitle
+
+\input{introduction}
+
+% simulations:
+\input{montecarlo}
+
+
+% theory:
+\input{equations}
+\input{timemod}
+
+
+% id implementations:
+\input{1dmodel}
+\input{1dode45}
+
+%\input{Rapport_Elisabeth}
+
+% 2d implementations:
+\input{sindrediff}
+
+
+\begin{thebibliography}{9}
+
+\bibitem{holstad}
+  Jörg Henrik Holstad,
+  \emph{Modellering av Diffusjon av Nevrotransmittere
+i den Ekstracellulære Væsken}.
+  2011.\\
+www.duo.uio.no/bitstream/handle/10852/10871\\
+/MasteroppgaveHenrikHolstad.pdf \\
+Retrieved 13.11.2014
+
+
+\bibitem{task}
+	Xavier Raynaud,
+	\emph{TMA4195 - Mathematical modeling (Fall 2014).
+Project descriptions.}\\
+www.math.ntnu.no/emner/TMA4195/2014h/public/project.pdf\\
+Retrieved 13.11.2014
+
+
+\end{thebibliography}
+
+
+
+\end{document}

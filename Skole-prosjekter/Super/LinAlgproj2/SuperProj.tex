@@ -1,0 +1,68 @@
+\documentclass[a4paper,11pt]{report}
+%
+%--------------------   start of the 'preamble'
+%
+\usepackage{graphicx,amssymb,amstext,amsmath}
+\usepackage{amsmath}
+\usepackage[]{algorithm2e}
+\usepackage{amsthm}
+\usepackage{mathtools}
+%\usepackage{ramsstyle}
+%\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{graphicx,amssymb,amstext,amsmath} \usepackage{amsmath} \usepackage{listings}
+%\usepackage{caption}
+%\usepackage{algorithm}
+%\usepackage{algpseudocode}
+
+\usepackage{graphicx,epstopdf}
+\epstopdfsetup{suffix=}
+\DeclareGraphicsExtensions{.ps}
+\DeclareGraphicsRule{.ps}{pdf}{.pdf}{`ps2pdf -dEPSCrop -dNOSAFER #1 \noexpand\OutputFile}
+%
+%%    homebrew commands -- to save typing
+\newcommand\etc{\textsl{etc}}
+\newcommand\eg{\textsl{eg.}\ }
+\newcommand\etal{\textsl{et al.}}
+\newcommand\Quote[1]{\lq\textsl{#1}\rq}
+\newcommand\fr[2]{{\textstyle\frac{#1}{#2}}}
+\newcommand\miktex{\textsl{MikTeX}}
+\newcommand\comp{\textsl{The Companion}}
+\newcommand\nss{\textsl{Not so Short}}
+
+
+
+
+
+%
+%---------------------   end of the 'preamble'
+%
+\begin{document}
+%-----------------------------------------------------------
+\title{Project 1 in TMA4280}
+\author{723818}
+\maketitle
+%-----------------------------------------------------------
+
+
+%-----------------------------------------------------------
+%\tableofcontents
+%-----------------------------------------------------------
+\include{del1}
+%\include{1f}
+%\include{1g}
+%\include{1h}
+%-----------------------------------------------------------
+%\addcontentsline{toc}{chapter}{\numberline{}Bibliography}
+%\include{biblio}
+%-----------------------------------------------------------
+%\appendix
+%\include{app4}
+%\include{app1}
+%\include{app2}
+%\include{app5}
+%\include{app3}
+%-----------------------------------------------------------
+\end{document}
