@@ -1,0 +1,133 @@
+\documentclass[a4paper,12pt]{article}
+%
+%--------------------   start of the 'preamble'
+%
+\usepackage{graphicx,amssymb,amstext,amsmath}
+\usepackage{amsmath}
+%\usepackage[]{algorithm2e}
+\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{amsthm}
+\usepackage{mathtools}
+%\usepackage{ramsstyle}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{graphicx,amssymb,amstext,amsmath} 
+\usepackage{amsmath} 
+\usepackage{listings}
+\usepackage{caption}
+%\usepackage{algorithm}
+%\usepackage{algpseudocode}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{definition}{Definition}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+%\theoremstyle{stylename}
+\usepackage{graphicx,epstopdf}
+\epstopdfsetup{suffix=}
+\DeclareGraphicsExtensions{.ps}
+\DeclareGraphicsRule{.ps}{pdf}{.pdf}{`ps2pdf -dEPSCrop -dNOSAFER #1 \noexpand\OutputFile}
+%
+%%    homebrew commands -- to save typing
+\newcommand\etc{\textsl{etc}}
+\newcommand\eg{\textsl{eg.}\ }
+\newcommand\etal{\textsl{et al.}}
+\newcommand\Quote[1]{\lq\textsl{#1}\rq}
+\newcommand\fr[2]{{\textstyle\frac{#1}{#2}}}
+\newcommand\miktex{\textsl{MikTeX}}
+\newcommand\comp{\textsl{The Companion}}
+\newcommand\nss{\textsl{Not so Short}}
+
+
+
+\Huge
+
+%
+%---------------------   end of the 'preamble'
+%
+\begin{document}
+%-----------------------------------------------------------
+\title{Project in TMA4180}
+\author{Candidate numbers: 10008, 10033}
+\maketitle
+%-----------------------------------------------------------
+
+
+%-----------------------------------------------------------
+%\tableofcontents
+%-----------------------------------------------------------
+\include{del1}
+%\include{del2}
+%\include{del3}
+
+
+\begin{thebibliography}{9}
+
+\bibitem{thm1}% : , 2nd Edition. Springer, 2006
+  J. Nocedal and S. Wright
+  \emph{Numerical Optimization}.
+  Theorem 
+  2nd edition,
+  2006.
+  
+  \bibitem{thm2}% : , 2nd Edition. Springer, 2006
+  J. Nocedal and S. Wright
+  \emph{Numerical Optimization}.
+  Theorem 12.1 page 321
+  2nd edition,
+  2006.
+
+  \bibitem{LICQ}% : , 2nd Edition. Springer, 2006
+  J. Nocedal and S. Wright
+  \emph{Numerical Optimization}.
+  Definition 12.4 page 321
+  2nd edition,
+  2006.
+    \bibitem{ALM}% : , 2nd Edition. Springer, 2006
+  J. Nocedal and S. Wright
+  \emph{Numerical Optimization}.
+  Framework 17.3 page 515
+  2nd edition,
+  2006.
+    \bibitem{backtracking}% : , 2nd Edition. Springer, 2006
+  J. Nocedal and S. Wright
+  \emph{Numerical Optimization}.
+  Algorithm 3.2 page 37
+  2nd edition,
+  2006.   
+      \bibitem{teoremet}% : , 2nd Edition. Springer, 2006
+  J. Nocedal and S. Wright
+  \emph{Numerical Optimization}.
+  Theorem 17.6 page 539
+  2nd edition,
+  2006.  
+  
+\bibitem{KKT}
+    Karush-Kuhn-Tucker conditions\\
+    \texttt{http://en.wikipedia.org/wiki/Karush\%E2\%80\%93Kuhn\%E2\%80\%93\\Tucker\_conditions}
+\bibitem{gresgorian}
+    Karush-Kuhn-Tucker conditions\\
+    \texttt{http://en.wikipedia.org/wiki/Gershgorin\_circle\_theorem}
+
+
+\end{thebibliography}
+
+
+%\include{1g}
+%\include{1h}
+%-----------------------------------------------------------
+%\addcontentsline{toc}{chapter}{\numberline{}Bibliography}
+%\include{biblio}
+%-----------------------------------------------------------
+%\appendix
+%\include{app4}
+%\include{app1}
+%\include{app2}
+%\include{app5}
+%\include{app3}
+%-----------------------------------------------------------
+\end{document}

@@ -1,0 +1,118 @@
+\section{Introduction}
+The goal of this exercise was to sum
+$$ \sum \limits_{i = 1}^{\infty} \frac{1}{i^2}= \frac{\pi^2}{6}$$
+in serial and parallel, using both \textbf{OpenMP} and \textbf{MPI}, and compare the results.
+%was to be checked for correctness. This was done by 
+
+
+\section{Serial code} \label{serial}
+A program designed to run in serial was made. It generates a vector of elements $v(i) = 1/i^2$, $\max(i) =n= 2^k$, $k \in\{3,\cdots ,14\}$. It then computes the sum in double precision, and compares it to the limit of the sum. The program made to do this is called \textit{single.c}. %was compiled with a makefile (\texttt{make single}) and run with the following argument: \texttt{./single}. %The data in table \ref{singledata} was found using the program \textit{single.c}.
+
+
+\section{parallel code}
+When writing the program in parallel there are two choices, using \textbf{OpenMP}, or using \textbf{MPI}. We are going to explore both, working individually and together.
+\subsection{OpenMP}
+The program from \ref{serial} was rewritten to use \textbf{OpenMP} to allow parallel computations. The resulting program is called \textit{openmp.c}.% it was compiled with a makefile (\texttt{make openmp}), and run with \texttt{OMP\_NUM\_THREADS=P ./openmp k}.
+% eventuelle større endringer som jeg kommer til å gjøre bør bli beskrevet her.
+
+
+
+\subsection{MPI}
+The program \textit{mpi.c} was written to use \textbf{MPI} to be able to run in parallel. Here processor $0$ is responsible for dividing the workload to all the other processors, and writing out the resulting difference between the limit and the finite sum. %It was compiled with  \texttt{mpicc -g -O3 mpi.c -o mpi -I.} and run with \texttt{mpirun -np P mpi k}.
+
+It was neccesary to use \textbf{MPI\_Send}, and \textbf{MPI\_Recv} to tell the different processors which elements they where responsible for summing. Summing everything from all the processors was done convenient by the function \textbf{MPI\_Sum}.
+
+
+
+
+\subsection{OpenMP and MPI}
+
+The program \textit{mpi.c} was rewritten to allow usage of both \textbf{OpenMP} and \textbf{MPI}.  The resulting program was called \textit{openmpi.c}. Also a program called \textit{superkjapp.c} was made, where dividing the workload is done more dynamic. It also allows greater precision.
+
+
+
+\section{Running the programs}
+All programs are made by the makefile, and the command: \texttt{make}. The run--commands are given in table \ref{runcommand}.
+\begin{table}[h!]
+\begin{tabular}{ll}
+Program & Run--command\\
+\hline
+\textit{single.c}& \texttt{./single} \\
+\textit{openmp.c}& \texttt{OMP\_NUM\_THREADS=P ./openmp k}\\
+\textit{mpi.c}	& \texttt{mpirun -np P mpi k} \\
+\textit{openmpi.c} & \texttt{OMP\_NUM\_THREADS=P1 mpirun -np P2 mpi k} \\
+\textit{superkjapp.c} & \texttt{OMP\_NUM\_THREADS=P1 mpirun -np P2 mpi k} \\
+\end{tabular}
+\caption{Run--commands for the different programs}\label{runcommand}
+\end{table}
+
+\section{Results}
+%The results from the different programs and setups are shown in table \ref{singledata}.
+
+\begin{table}[h!]
+\begin{tabular}{l| l l l l l l}
+ & Single & \textbf{OpenMP}& \textbf{OpenMP}& \textbf{MPI}& \textbf{MPI}\\
+ & 		  & $P = 2$ & $P = 8$ & $P = 2$ & $P = 8$ \\
+\hline
+%$2^k$ & $1.175\cdot 10^{-1}$&$1.175\cdot 10^{-1}$&\\
+$2^3$   &$1.175120$&$1.175120$&$1.175120$&$1.175120$&$1.175120$& $e-01$\\ 
+$2^4$   &$6.058753$&$6.058753$&$6.058753$&$6.058753$&$6.058753$& $e-02$\\
+$2^5$   &$3.076680$&$3.076680$&$3.076680$&$3.076680$&$3.076680$& $e-02$\\
+$2^6$   &$1.550357$&$1.550357$&$1.550357$&$1.550357$&$1.550357$& $e-02$\\
+$2^7$   &$7.782062$&$7.782062$&$7.782062$&$7.782062$&$7.782062$& $e-03$\\
+$2^8$   &$3.898631$&$3.898631$&$3.898631$&$3.898631$&$3.898631$& $e-03$\\
+$2^9$   &$1.951219$&$1.951219$&$1.951219$&$1.951219$&$1.951219$& $e-03$\\
+$2^{10}$&$9.760858$&$9.760858$&$9.760858$&$9.760858$&$9.760858$& $e-03$\\
+$2^{11}$&$4.881621$&$4.881621$&$4.881621$&$4.881621$&$4.881621$& $e-04$\\
+$2^{12}$&$2.441108$&$2.441108$&$2.441108$&$2.441108$&$2.441108$& $e-04$\\
+$2^{13}$&$1.220629$&$1.220629$&$1.220629$&$1.220629$&$1.220629$& $e-04$\\
+$2^{14}$&$6.103329$&$6.103329$&$6.103329$&$6.103329$&$6.103329$& $e-05$\\ 
+
+\end{tabular} \caption{Difference in limit and sum, from solving the problem with different methods.}  \label{singledata}
+\end{table}
+
+As we can see from table \ref{singledata}, the summing is precise with 6 decimals accuracy. In general the sum will differ because of a round-off error when adding large numbers with small numbers. In this case, it will occur in the reduction part of the programs.
+
+\section{Computational complexity}
+
+Some numbers that might be of interest while dealing with parallel processing is memory usage per processor, due to the small size of the cache, and to see if we need to preform any additional FLOP per iteration.
+
+\subsection{Memory usage}
+Memory usage per processor, for large $n$ is: \\
+\begin{itemize}
+\item For serial code: $n$ doubles.\\
+\item For parallel code: $n/P$ doubles.
+\end{itemize}
+
+
+\subsection{Floating point operations}
+%To see how well parallel prosessing scales, we wanted to compare the number of floating point operations to make the vector in the single case, and the \textbf{OpenMP} case.
+
+Number of floating point operations needed to make the vector $v[i]$ for the serial code:  13+$n\cdot7$.\\
+Number of floating point operations needed to make the sum $S_n$ for the \textbf{OpenMP} code:  13+$n\cdot8$.
+
+Multiprocessor is load balanced because the division and adding costs no more with large numbers than with small numbers.
+
+%Multiprocessor is load ballanced.
+%\begin{table}
+%\begin{tabular}{l l l}
+%%% & Single & \textbf{OpenMP}, $P=2$ & \textbf{OpenMP}, $P=8$ & \textbf{MPI}, $P=2$ & \textbf{MPI}, $P=8$ \\
+% &Single & \textbf{OpenMP}\\
+%%\hline
+%Initializing: & 13 & 13\\
+%In for loop: & 7 & 7 \\ 
+%In total: & 13+$2^k\cdot7$ & 13+$2^k\cdot7$ \\
+%%
+%%
+%%
+%%
+%\end{tabular} \caption{Number of floating point operations when finding the vector $v[i]$.}  \label{floting}
+%\end{table}
+
+
+
+%\subsection{Time consumption}
+
+\section{Conclusion}
+Due to the lack of precision in doubles, the sum cannot be approximated with more than about 7 digits. This takes less than a second with any program. Thus parallel is not really necessary in this case.
+

@@ -1,0 +1,19 @@
+\section{Modeling a time scale}
+We wanted to find a scaling for time on order to get a feel about the time it takes before a signal is transmitted. In order to do that, we use the diffusion equation
+$$\frac{\partial c^{*}}{\partial t^{*}} = \kappa \Delta c^{*}.$$
+Since we were given a radius, and a height, we chose to use cylindrical coordinates, thus $\Delta$ becomes
+$$ \Delta f = \frac{1}{r^{*}} \frac{\partial}{\partial r^{*}} \Big( r^{*} \frac{\partial f}{\partial r^{*}} \Big) +\frac{1}{(r^{*})^2}\frac{\partial^2 f}{\partial \phi^2} + \frac{\partial^2 f}{\partial (z^{*})^2.} $$
+We scale the equation so that
+$$\begin{array}{lr}
+c^{*} &= Cc,\\ r^{*} &=Rr,\\ z^{*} &= hz,\\ t^* &=Tt.\\
+\end{array}$$
+With the scaling the equation becomes
+$$\frac{\partial Cc}{\partial Tt} = \kappa \Bigg( \frac{1}{Rr} \frac{\partial }{\partial Rr} \Big( Rr \frac{\partial Cc}{\partial Rr} \Big) +\frac{1}{(Rr)^2}\frac{\partial^2 Cc}{\partial \phi^2} + \frac{\partial^2 Cc}{\partial (hz)^2} \Bigg). $$
+We assume that the neurotransmitters are released in the centre of the axon, because of rotational symmetry $c$ becomes independent of $\phi$. Since $R >> h$ it follows that $1/R^2<<1/h^2$, and we assume $1/R^2 \approx 0$. After these simplifications the equation becomes
+%We assume that 
+$$\frac{1}{T} \frac{\partial c}{\partial t} = \kappa  \frac{1}{h^2}\frac{\partial^2 c}{\partial z^2} . $$
+To simplify we decide that all derivatives are $ \sim 1 $, thus we obtain
+$$\frac{1}{T}  = \kappa \frac{1}{h^2}.  $$
+Solving for $T$ gives us a timescale
+$$T = \frac{h^2}{\kappa} = \frac{(15\cdot 10^{-9}\text{m})^2}{0.3\cdot 10^{-12} \text{m$^2$/s}} = 0.75 \text{ms}. $$
+This is by no means a correct time for the signal to be transmitted, but we could guess that the real time will be of order $1 \text{ms}$.

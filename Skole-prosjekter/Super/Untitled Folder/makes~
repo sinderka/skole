@@ -1,0 +1,23 @@
+CC = mpixlc
+CXX = mpixlcxx
+FC = mpixlf90
+
+OPTFLAGS = -O3
+CFLAGS = $(OPTFLAGS) -g
+CXXFLAGS = $(OPTFLAGS) -g
+FFLAGS = $(OPTFLAGS) -g
+
+#all: helloworld-mpi-c #helloworld-mpi-f helloworld-mpi-cpp
+all: super
+
+super: super.c
+        $(CC) $(CFLAGS) -o super super.c
+
+#helloworld-mpi-f: helloworld-mpi.f90
+#        $(FC) $(FFLAGS) -o helloworld-mpi-f helloworld-mpi.f90
+#
+#helloworld-mpi-cpp: helloworld-mpi.cpp
+#        $(CXX) $(CXXFLAGS) -o helloworld-mpi-cpp helloworld-mpi.cpp
+#
+clean:
+        rm helloworld-mpi-*

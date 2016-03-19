@@ -1,0 +1,44 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage[utf8]{inputenc}
+\usepackage{caption}
+\usepackage{subcaption}
+\title{Planning. \\ Programming project in Introduction to AI}
+\author{Jon Christian Halvorsen }
+
+
+\begin{document}
+\maketitle
+
+\section*{Figure with plan}
+
+Results are presented in figure \ref{fig:plan}.
+
+\begin{figure}[ht]
+        \centering
+        %\includegraphics[trim=0cm 5cm 13cm 0cm, clip=true,width=\textwidth]{oving6}
+        \caption{Plan for the gardening agent. Blue boxes are start states and red boxes are goal states. Pink edges indicate a valid plan. For actions, a red, blue and green line indicate a mutex in respectively inconsistent effect, interference and competing needs. For the propositions, red is negation mutex and blue is inconsistent support mutex.}
+        \label{fig:plan}
+\end{figure}
+
+\section*{Expand; do or do not}
+Obviously we need to expand at $S_0$ since none of the goal states are represented. In $S_1$ we also need to expand one more, since we have a mutex in (wetLawn, shrtLawn) and we need to be mutexfree in the set of all the goal states. This is fulfilled in $S_2$, so we finish the expanding.
+
+
+\section*{The Plan}
+The plan we choose based on the planning algorithm goes so:
+\begin{itemize}
+\item Mow the lawn.
+\item Water the lawn with a sprinkler and water the flowers with the watering can (in either order).
+\end{itemize}
+
+
+\section*{Figuring out the plan}
+To figure out the plan, all we need to do is do a backtracking search from the (fulfilled) goal states and make sure that for each step we choose all the actions to not be mutex. This is fulfilled for the pink plan in figure \ref{fig:plan}.
+
+
+
+
+\end{document}
