@@ -1,0 +1,42 @@
+Doc:
+http://www.learncpp.com/
+
+Dep:
+openblas: http://www.openblas.net/
+ccpunit (FÅR DET IKKE TIL!)
+c++14
+
+TESTS:
+automatiske tester,(tjaa)
+teste io ordentlig!
+REstarte krylv
+gjøre krylov om til klasser
+SLM
+
+
+Hvordan kompilere cpp filer:
+
+Ting å includere:
+iostream - skriv inn og ut
+stdlib - for rand() and srand()
+ctime - for time() (seed)
+
+For å kompilere:
+make
+
+g++ -o name_on_exceutable name_on_file.cpp name.cpp header.h...
+
+g++ -o main main.cpp io.h io.cpp tools.cpp tools.h random_Matrix.cpp random_Matrix.h -I /home/shomeb/s/sindreka/include/ -L /home/shomeb/s/sindreka/OpenBLAS-0.2.19/ -lopenblas 
+
+
+For å kjøre:
+./name_on_exceutable
+
+
+
+int a{4};
+int a(4);
+(condition) ? expression : other_expression;
+larger = (x > y) ? x : y;
+bitwise ting om man skal ha mange options (ja/nei) i feks en klasse
+
