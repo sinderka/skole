@@ -1,4 +1,6 @@
-#include "cblas/include/cblas.h" // for BLAS
+//#include "cblas/include/cblas.h" // for BLAS
+
+#include "../../../lapack/CBLAS/include/cblas.h"
 
 #include "krylov.h"
 #include "io.h"
@@ -11,6 +13,7 @@
 #include <string.h>
 
 //http://www.netlib.org/blas/
+//http://www.netlib.org/lapack/explore-html/index.html
 // definition of BLAS-functions:
 // DGEMV    (matrix-vector multiplication) args: T, m,n,a,A,lda,x,in,b,y,inc; y = a * A * x + b * y
 // DDOT     (vector-vector multiplication) args: n,x,inc,y,inc;               a = x' * y
@@ -114,13 +117,13 @@ OrthogonalSet arnoldi(double *A, double *b, long n, double e, long k ) {
 
 
 
-int projMet (double *A,double *b,int n,int k,double e,int max_restarts,t_n) {
+int projMet (double *A,double *b,int n,int k,double e,int max_restarts,int t_n, double t_s) {
 
 OrthogonalSet set;
 
 double *F = initArray(n*t_n); // burde få denne arrayen fra en annen funksjon
 
-double set.eps = 10;
+set.eps = 10;
 double eps = norm(b,n,2);
 int itr = 0;
 
@@ -130,13 +133,13 @@ while (e > set.eps || max_restarts < itr ) {
 
 set = arnoldi(A,b,n,e,k); // set.b og b er samme element?
 
-intMet(G,n,inc,H,k,hn,ht); // G er "in place" endret
+//intMet(G,n,inc,H,k,hn,ht); // G er "in place" endret?
 
-hn = set.eps; // Endret kriteria for å angi hvor mange iterasjoner er nok, gidder ikke sjekke hvor stort det største elementet er.
+eps = set.eps; // Endret kriteria for å angi hvor mange iterasjoner er nok, gidder ikke sjekke hvor stort det største elementet er.
 
 
 //cblas, kan løses ved DGEMM
-//next_step = V[:][1:k] * G; matrix matrix ting
+//next_step = cblas_dgemm(V[:][1:k] * G); matrix matrix ting
 // F += next_step;  // gjerne med plusser og!
 
 //v = V[:][set.k] peker hit!

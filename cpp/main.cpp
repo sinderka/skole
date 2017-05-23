@@ -1,10 +1,10 @@
-#include "cblas/include/cblas.h" // for BLAS
+//#include "cblas/include/cblas.h" // for BLAS
 
 
 #include <iostream>
 #include <string>
 
-//#include "../../include/lapacke.h"
+
 //#include "../../include/cblas.h"
 /*
 // For QT
@@ -20,7 +20,6 @@
 #include "tools.h"
 #include "krylov.h"
 
-//pragma once
 #include <stdio.h>
 
 //void print();
@@ -43,7 +42,7 @@ int main(int argc, char ** argv ) {
     double *mat = new double[n*m] {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25};
 
 
-
+    
     OrthogonalSet set;
 
     set = arnoldi(mat,vec1,n,0.001,k);  

@@ -2,14 +2,13 @@ Doc:
 http://www.learncpp.com/
 
 Dep:
-openblas: http://www.openblas.net/
-ccpunit (FÅR DET IKKE TIL!)
+lapacke/cblas: http://www.netlib.org/lapack/
 c++14
 
 TESTS:
 automatiske tester,(tjaa)
 teste io ordentlig!
-REstarte krylv
+REstarte krylv                  neesten
 gjøre krylov om til klasser
 SLM
 

@@ -3,6 +3,8 @@
 ///////////////////////////////////
 ///////////////////////////////////
 
+#include "../../../lapack/CBLAS/include/cblas.h"
+#include "../../../lapack/LAPACKE/include/lapacke.h"
 
 #include <cmath> // for pow
 
@@ -103,6 +105,66 @@ if ( start_row_A + n_rows > height_A || start_row_B + n_rows > height_B ) {
 
     }
 */
+}
+
+void subtractDiag(double *A,int n,double value) {
+
+    for (int ii = 0; ii < n*n; ii += n+1) {
+        A[ii] -= value;
+    }
+
+}
+
+
+
+////BURDE TA INN ET HINT OM HVORDAN A SER UT!
+double* explisitIntegration(double *A,int n,double *F,int t_n,double t_s) {
+// Solves the equation du/dt = A*u + F
+//INPUT: A, an m x m array
+//       m, integer, and height of A and F
+//       F, an m*t_n array
+//       t_n number of steps in time
+//       t_s length of time-steps
+//OUTPUT: U
+
+double *mat = initArray(n*n);
+
+double *U = initArray(n*t_n); // vil helst klare meg uten denne!
+
+//mat = eye(n) - t_s * A
+cblas_daxpy(n,t_s,A,1,mat,1);
+subtractDiag(mat,n,1.0);
+
+//U = F
+cblas_daxpy(n,t_s,F,1,U,1);
+
+//mat = t_s * mat
+//cblas_dscal(n,t_s,mat,1);
+
+//mat = eye(m) - mat;
+
+
+
+int INFO, IPIV;
+
+//U[:][2] = mat\( ht * F[:][2] ) );
+LAPACKE_dgelsy(n,1,A,n,IPIV,U[n*2],n,INFO) // arg, denne gir ut A som en lu-faktorisering av A i A
+//LAPACKE_dgelsy(n,1,mat,n,mat,);
+
+
+
+
+for (int ii = 3; ii < t_n-1 ; ii += 2 ) {
+
+    //U[:][i] = U[:][i-1] + ht*(A*U[:][i-1] + F[:][i-1] );
+    //                        daxpy(cblas_dgemv(A*U) +F[:][i-1]);
+
+    //U[:][i+1] = mat\( U[:][i] + ht*F[:][i+1] );
+    
+}
+
+return U;
+
 }
 
 

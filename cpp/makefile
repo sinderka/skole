@@ -1,11 +1,11 @@
 
-IDIR= cblas/include/
+IDIR= -I ../../../lapack/CBLAS/include/ -I ../../../lapack/LAPACKE/include/
 CXX=g++
-CPPFLAGS=-std=c++14 -I $(IDIR)
+CPPFLAGS=-std=c++14 $(IDIR) -lcblas -llapack
 
 ODIR=.
-LDIR= cblas/lib/
-LDLIBS=-L ${LDIR} -lopenblas
+LDIR= -L ../../../lapack/SRC
+LDLIBS= ${LDIR}
 
 _DEPS= io.h krylov.h random_Arrayi.h tools.h test.h tools_Test.cpp krylov_Test.cpp
 DEPS=$(patsubst %,$(IDIR)/%,$(_DEPS))
