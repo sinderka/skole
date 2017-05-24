@@ -31,6 +31,8 @@
 
 int main(int argc, char ** argv ) {
 
+
+/*
     long n = 5;
     long m = 5;
     int k = 3;
@@ -81,6 +83,23 @@ int main(int argc, char ** argv ) {
     std::cout << set1.eps << "\n";
 
     std::cout << set1.k << "\n";
+*/
+    int n = 3;
+    int t_n = 10;
+    double sim_time = 2;
+    double t_s = sim_time/t_n;
+    double eps = -1;
+    double *H = new double[n*n] {5,5,5,
+                                5,5,5,
+                                5,5,5};
+
+    double *F = new double[n*t_n] {1,1,1,1,1,1,1,1,1,1,
+                                  2,2,2,2,2,2,2,2,2,2,
+                                  3,3,3,3,3,3,3,3,3,3};
+
+    integrateArnoldi(H,n,F,t_n,t_s,eps);
+
+
 
     return 0;
 }

@@ -13,7 +13,7 @@ void arrayToArray(double *A, long start_col_A, long start_row_A, long height_A,
                   double *B, long start_col_B, long start_row_B, long height_B,
                   long n_cols, long n_rows);
 
-double* explisitIntegration(double *A,int m,double *F,int t_n,double t_s);
+void integrateArnoldi(double *A,int n,double *F,int t_n,double t_s,double eps);
 
 
 #endif

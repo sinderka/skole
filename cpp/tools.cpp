@@ -117,9 +117,9 @@ void subtractDiag(double *A,int n,double value) {
 
 
 
-////BURDE TA INN ET HINT OM HVORDAN A SER UT!
-double* explisitIntegration(double *A,int n,double *F,int t_n,double t_s) {
-// Solves the equation du/dt = A*u + F
+
+void integrateArnoldi(double *A,int n,double *F,int t_n,double t_s,double eps) {
+// Solves the equation du/dt = A*u + eps*e_1*F[-1][:] with u(0) = 0 
 //INPUT: A, an m x m array
 //       m, integer, and height of A and F
 //       F, an m*t_n array
@@ -127,44 +127,67 @@ double* explisitIntegration(double *A,int n,double *F,int t_n,double t_s) {
 //       t_s length of time-steps
 //OUTPUT: U
 
-double *mat = initArray(n*n);
+    int inc = 1;
+    double *mat = initArray(n*n);
 
-double *U = initArray(n*t_n); // vil helst klare meg uten denne!
+    //mat = inv(eye(n) - t_s * mat)
+    int *IPIV = new int[n];
+    double *WORK;
+    int INFO;
+    cblas_daxpy(n*n,t_s,A,inc,mat,inc);
+    subtractDiag(mat,n,1.0);
+    //LAPACKE_dgetrf(n,n,mat,n,IPIV,INFO);
+    //LAPACKE_dgetri(n,mat,n,IPIV,WORK,-1,INFO);
 
-//mat = eye(n) - t_s * A
-cblas_daxpy(n,t_s,A,1,mat,1);
-subtractDiag(mat,n,1.0);
+    //A = eps*A
+    cblas_dscal(n*n,eps,A,inc);
 
-//U = F
-cblas_daxpy(n,t_s,F,1,U,1);
+    // Pointers to F[:][i]
+    double *F_pntr_old, *F_pntr_current, F_pntr_next;
 
-//mat = t_s * mat
-//cblas_dscal(n,t_s,mat,1);
-
-//mat = eye(m) - mat;
-
-
-
-int INFO, IPIV;
-
-//U[:][2] = mat\( ht * F[:][2] ) );
-LAPACKE_dgelsy(n,1,A,n,IPIV,U[n*2],n,INFO) // arg, denne gir ut A som en lu-faktorisering av A i A
-//LAPACKE_dgelsy(n,1,mat,n,mat,);
-
+    //remember old values
+    double F_old = eps*F[n-1];
+    double F_current = eps*F[n*2-1];
+    double F_next = eps*F[n*3-1];
 
 
+    // HVA SKAL EGENTLIG SKJE HER?
+    F_pntr_current = &F[n];
 
-for (int ii = 3; ii < t_n-1 ; ii += 2 ) {
+    cblas_dscal(n,F_current,mat,n);
 
-    //U[:][i] = U[:][i-1] + ht*(A*U[:][i-1] + F[:][i-1] );
-    //                        daxpy(cblas_dgemv(A*U) +F[:][i-1]);
+    for (int ii = 2; ii < t_n-1 ; ii += 2 ) {
 
-    //U[:][i+1] = mat\( U[:][i] + ht*F[:][i+1] );
-    
-}
+        //Saving the values needed from F
+        double F_old = F_current;                   //F[:][ii-1]
+        double F_current = F_next;                  //F[:][ii]
+        double F_next = eps*F[n*(ii+1) + n-1];      //eps*F[:][ii+1]
 
-return U;
+        //Making pointers to F
+        double *F_pntr_old = & F[n*(ii-1) + n-1];   //F[-1][ii-1]
+        double *F_pntr_current = & F[n*ii + n-1];   //F[-1][ii]
+        double *F_pntr_next = & F[n*(ii+1) + n-1];  //F[-1][ii+1]
 
+
+        // U[:][ii] = U[:][ii-1] + A*U[:][ii-1] + F_old*e_1; 
+
+        // F[:][ii] = A*U[:][ii-1]
+        cblas_dgemv(CblasColMajor,CblasNoTrans,n,n,1.0,A,n,F_pntr_old,inc,0.0,F_pntr_current, inc);
+
+        // F[1][ii] += F_old
+        F[n*ii + n - 1] += F_old;
+
+        //F[:][ii] += F[:][ii-1]
+        cblas_daxpy(n,1.0,F_pntr_old,inc,F_pntr_current,inc);
+        
+
+        // U[:][ii+1] = mat*( U[:][ii] + F_next*e_1 )
+        F[n*ii + n - 1] += F_next;
+
+        cblas_dgemv(CblasColMajor,CblasNoTrans,n,n,1.0,mat,n,F_pntr_current,inc,0.0,F_pntr_next,inc);
+        
+        F[n*ii + n - 1] -= F_next;
+    }
 }
 
 
