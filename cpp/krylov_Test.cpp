@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "krylov.h"
+#include "tools.h"
 #include "io.h"
 
 
@@ -18,14 +19,15 @@ struct arnoldiAns {
 };
 
 
-void tryArnoldi(double *mat,double *vec,int n,double e,int k,arnoldiAns ans) {
+void tryArnoldi(OrthogonalSet set,double *mat,int n,double e,int k,arnoldiAns ans) {
 
-    OrthogonalSet set;
+    set.H = initArray(k*k);
+    set.V = initArray(k*n);
 
 	bool result = false; 
 	
 	try {
-		set = arnoldi(mat,vec,n,e,k);
+        arnoldi(set,mat,n,k,e);
 
         result =  (set.eps - ans.eps < 0.0001);
         result *= (set.H[ans.h_c] - ans.h < 0.0001);
@@ -53,9 +55,9 @@ void tryArnoldi(double *mat,double *vec,int n,double e,int k,arnoldiAns ans) {
 
 void arnoldiTest() {
 
-
+    OrthogonalSet set1;
     int n = 5;
-    double *vec1 = new double[n] {1,2,3,4,5};
+    set1.v = new double[n] {1,2,3,4,5};
     double *mat1 = new double[n*n] {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25};
 
 	arnoldiAns ans1;
@@ -64,11 +66,11 @@ void arnoldiTest() {
 	ans1.h = -4.5455; ans1.h_c = 3;
 	ans1.v = 0.0; ans1.v_c = 4;
 	ans1.eps = 0;
-    tryArnoldi(mat1,vec1,n,0.01,3,ans1);
+    tryArnoldi(set1,mat1,n,0.01,3,ans1);
 
-
+    OrthogonalSet set2;
     n = 6;
-    double *vec2 = new double[n] {1,1,1,1,1,1};
+    set2.v = new double[n] {1,1,1,1,1,1};
     double *mat2 = new double[n*n] ();
     mat2[0] = 1; mat2[7] = 2; mat2[14] = 3; mat2[21] = 4; mat2[28] = 5; mat2[35] = 6; 
 
@@ -78,7 +80,7 @@ void arnoldiTest() {
 	ans2.h = 3.5; ans2.h_c = 8;
 	ans2.v = 0.372678; ans2.v_c = 5;
 	ans2.eps = 1.31747;
-    tryArnoldi(mat2,vec2,n,0.01,3,ans2);
+    tryArnoldi(set2,mat2,n,0.01,3,ans2);
 
 }
 

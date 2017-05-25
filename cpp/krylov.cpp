@@ -21,7 +21,7 @@
 
 
 
-OrthogonalSet arnoldi(OrthogonalSet set, double *A, long n, long k, double e ) {
+void arnoldi(OrthogonalSet &set, double *A, long n, long k, double e ) {
 //INPUT: A , an array acting as a n*n matrix
 //		 b , an vector of length n
 // 	 	 n , number of rows in A and b
@@ -29,90 +29,77 @@ OrthogonalSet arnoldi(OrthogonalSet set, double *A, long n, long k, double e ) {
 // 		 k , a maximum number of krylov iterations
 //OUTPUT: an OrthogonalSet of the arnoldi iterations
 
-    //OrthogonalSet set;
 
     k = ( n < k ) ? n : k;
 
-    double *V = initArray(n*k);
-    double *H = initArray(k*k);
-
     double *v_pntr;
-    double eps = norm(b,n,2);
+    double eps = norm(set.v,n,2);
     long ii = 0;
 	int inc = 1;
 
     //b = 1/eps
-    cblas_dscal(n,1/eps, b,inc);
+    cblas_dscal(n,1/eps, set.v,inc);
 
     for (ii = 0; ii < k; ii++) {
 
         //V[:][ii] = b
-        arrayToArray(V,ii,0,n,b,0,0,n,1,n);
+        arrayToArray(set.V,ii,0,n,set.v,0,0,n,1,n);
         
         //v_ii = V[:][ii]
-        v_pntr = &V[ii*n];
+        v_pntr = &set.V[ii*n];
 
         //b = A * v_ii
-        cblas_dgemv(CblasColMajor, CblasNoTrans,  n, n, 1.0, A,n,v_pntr,inc,  0.0 ,b, inc);
+        cblas_dgemv(CblasColMajor, CblasNoTrans,  n, n, 1.0, A,n,v_pntr,inc,  0.0 ,set.v, inc);
 
         for (long jj = 0; jj <= ii; jj++) {
 
             // v_jj = V[:][jj]
-            v_pntr = &V[jj*n];
+            v_pntr = &set.V[jj*n];
 
             //H[ii][jj] = v_jj^T * b;
-            H[ii*k + jj] = cblas_ddot(n,v_pntr,inc,b,inc);
+            set.H[ii*k + jj] = cblas_ddot(n,v_pntr,inc,set.v,inc);
 
             //b = b - H(ii,jj) * V[:][i]
-            cblas_daxpy(n,-H[ii*k + jj],v_pntr,inc,b,inc);
+            cblas_daxpy(n,-set.H[ii*k + jj],v_pntr,inc,set.v,inc);
         }
 
-        eps = norm(b,n,2);
+        eps = norm(set.v,n,2);
 
         //b = 1/eps
-        cblas_dscal(n,1/eps, b,inc);
+        cblas_dscal(n,1/eps, set.v,inc);
 
 
         if (eps < e) {
-			
+			// V er for lang!
+
+            //H er for stor!
             // Burde gjøres på en annen måte
             
             //set.V = initArray(n*(ii+1)); // std::copy
             //arrayToArray(set.V,0,0,n, V,0,0,n,ii+1 ,n);
-            std::copy(std::begin(V), std::begin(V) + n*(ii+1), std::begin(set.V));
+            //std::copy(std::begin(set.V), std::begin(set.V) + n*(ii+1), std::begin(set.V));
 
-            set.H = initArray((ii+1)*(ii+1)); //std::copy?? i loop? Ja, burde nok det!
-            set.v = initArray(n); // no residual
-
-
-            arrayToArray(set.H,0,0,ii+1,H,0,0,k,ii+1,ii+1);
+            //set.H = initArray((ii+1)*(ii+1)); //std::copy?? i loop? Ja, burde nok det!
+            //set.v = initArray(n); // no residual
 
 
+            //arrayToArray(set.H,0,0,ii+1,H,0,0,k,ii+1,ii+1);
 
-            delete[] V;
-			delete[] H;
-			delete[] b;
+
             set.eps = 0;
             set.k = ii+1; 
-
-            return set;
-            
+            return;
         } else if (ii < n-1) {
 
             //H[ii][ii+1] = eps
-            H[ii*n + ii+1] = eps;
+            set.H[ii*n + ii+1] = eps;
         }
 	}
-
-    set.V = V;
-    set.H = H;
-
-    set.v = b;
 
     set.eps = eps;
     set.k = ii;
 
-    return set;
+//    return set;
 }
 
 
@@ -126,6 +113,8 @@ double* projMet (const double *A,const double *b,int n,int k,double e,int max_re
     OrthogonalSet set;
     std::copy(std::begin(b),std::end(b), std::begin(set.v));
     
+    set.H = initArray(k*k);
+    set.V = initArray(k*n);
 
     double *F = initArray(n*t_n);
     double *G = initArray(k*t_n);

@@ -1,10 +1,10 @@
 
-IDIR= -I ../../../lapack/CBLAS/include/ -I ../../../lapack/LAPACKE/include/
+IDIR= -I ../../../lapack/LAPACKE/include/ -I ../../../lapack/CBLAS/include/ 
 CXX=g++
-CPPFLAGS=-std=c++14 $(IDIR) -lcblas -llapack
+CPPFLAGS=-std=c++14 $(IDIR) -llapack -lcblas
 
 ODIR=.
-LDIR= -L ../../../lapack/SRC
+LDIR= -L ../../../lapack/CBLAS/src/ -L ../../../lapack/LAPACKE/src/ -L ../../../lapack/SRC/
 LDLIBS= ${LDIR}
 
 _DEPS= io.h krylov.h random_Arrayi.h tools.h test.h tools_Test.cpp krylov_Test.cpp
@@ -19,10 +19,10 @@ $(ODIR)/%.o: %.c $(DEPS)
 all: main test
 
 main: main.cpp $(OBJ)
-	g++ -o $@ $^ $(CPPFLAGS) ${LDLIBS}
+	g++ -o $@ $^ ${LDLIBS} $(CPPFLAGS)
 
 test: test.cpp $(OBJ)
-	g++ -o $@ $^ $(CPPFLAGS) ${LDLIBS}
+	g++ -o $@ $^ ${LDLIBS} $(CPPFLAGS) 
 	
 
 .PHONY: clean
@@ -31,7 +31,3 @@ clean:
 	rm -f $(ODIR)/*.o *~ core $(INCDIR)/*~
 
 
-
-
-#$(program_NAME): $(program_OBJS)
-#    $(LINK.cc) $(program_OBJS) -o $(program_NAME)

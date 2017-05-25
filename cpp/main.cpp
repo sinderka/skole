@@ -12,7 +12,8 @@
 #include <QApplication>
 #include <QPushButton>
 */
-
+#include "../../../lapack/CBLAS/include/cblas.h"
+#include "../../../lapack/LAPACKE/include/lapacke.h"
 
 // My project files
 #include "io.h"
@@ -84,20 +85,39 @@ int main(int argc, char ** argv ) {
 
     std::cout << set1.k << "\n";
 */
+
+
     int n = 3;
     int t_n = 10;
     double sim_time = 2;
     double t_s = sim_time/t_n;
     double eps = -1;
     double *H = new double[n*n] {5,5,5,
-                                5,5,5,
-                                5,5,5};
+                                 5,5,5,
+                                 5,5,5};
 
     double *F = new double[n*t_n] {1,1,1,1,1,1,1,1,1,1,
-                                  2,2,2,2,2,2,2,2,2,2,
-                                  3,3,3,3,3,3,3,3,3,3};
+                                   2,2,2,2,2,2,2,2,2,2,
+                                   3,3,3,3,3,3,3,3,3,3};
+    cblas_dscal(n*n,1.0,H,n);
 
     integrateArnoldi(H,n,F,t_n,t_s,eps);
+
+    printArray(F,n,t_n);
+
+   double A[5][3] = {{1,2,3},{4,5,1},{3,5,2},{4,1,4},{2,5,3}};
+   double b[5][2] = {{-10,12},{14,16},{18,-3},{14,12},{16,16}};
+   lapack_int info,m,lda,ldb,nrhs;
+   lapack_int nn;
+   m = 5;
+   nn = 3;
+   nrhs = 2;
+   lda = 5;
+   ldb = 5;
+
+    info = LAPACKE_dgels(LAPACK_COL_MAJOR,'N',m,nn,nrhs,*A,lda,*b,ldb);
+
+    //printArray(b,2,5);
 
 
 

@@ -131,13 +131,17 @@ void integrateArnoldi(double *A,int n,double *F,int t_n,double t_s,double eps) {
     double *mat = initArray(n*n);
 
     //mat = inv(eye(n) - t_s * mat)
-    int *IPIV = new int[n];
+    int *IPIV = new int[n] ();
     double *WORK;
     int INFO;
     cblas_daxpy(n*n,t_s,A,inc,mat,inc);
     subtractDiag(mat,n,1.0);
-    //LAPACKE_dgetrf(n,n,mat,n,IPIV,INFO);
-    //LAPACKE_dgetri(n,mat,n,IPIV,WORK,-1,INFO);
+
+//lapack_int LAPACKE_dgetrf( int matrix_layout, lapack_int m, lapack_int n,
+//                           double* a, lapack_int lda, lapack_int* ipiv );
+
+//    LAPACKE_dgetrf(LAPACK_COL_MAJOR,n,n,mat,n,IPIV);
+    //LAPACKE_dgetri(LAPACK_COL_MAJOR,n,mat,n,IPIV);
 
     //A = eps*A
     cblas_dscal(n*n,eps,A,inc);
@@ -150,11 +154,9 @@ void integrateArnoldi(double *A,int n,double *F,int t_n,double t_s,double eps) {
     double F_current = eps*F[n*2-1];
     double F_next = eps*F[n*3-1];
 
-
-    // HVA SKAL EGENTLIG SKJE HER?
     F_pntr_current = &F[n];
 
-    cblas_dscal(n,F_current,mat,n);
+    cblas_dscal(n,F_current,mat,n); // Er dette rett, eller skal det være noe med eps
 
     for (int ii = 2; ii < t_n-1 ; ii += 2 ) {
 

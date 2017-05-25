@@ -15,6 +15,6 @@ struct OrthogonalSet {
 };
 
 
-OrthogonalSet arnoldi(double *A, double *b, long n, double e, long k );
+void arnoldi(OrthogonalSet &set,double *A, long n, long k,double e );
 
 #endif

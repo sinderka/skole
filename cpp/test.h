@@ -1,6 +1,21 @@
 #ifndef TEST_H
 #define TEST_H
 //////////tools//////////
+
+#include "krylov.h"
+
+struct arnoldiAns {
+	int k;
+	double V;
+	int V_c;
+	double h;
+	int h_c;
+	double eps;
+	double v;
+	int v_c;
+
+};
+
 void tryNorm(double *vec,int n,int p,int ans);
 void normTest();
 
@@ -12,7 +27,7 @@ void arrayToArrayTest();
 void toolsTest();
 
 //////////krylov//////////
-void tryArnoldi(double *mat,double *vec,int n,double e,int k,double ans);
+void tryArnoldi(OrthogonalSet set, double *mat,int n,double e,int k,arnoldiAns ans);
 void arnoldiTest();
 void krylovTest();
 
