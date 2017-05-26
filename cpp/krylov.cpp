@@ -9,6 +9,7 @@
 
 
 #include <stdio.h>
+#include <algorithm>    // std::copy
 
 //http://www.netlib.org/blas/
 //http://www.netlib.org/lapack/explore-html/index.html
@@ -104,14 +105,14 @@ void arnoldi(OrthogonalSet &set, double *A, long n, long k, double e ) {
 
 
 
-/*
 
 
 
-double* projMet (const double *A,const double *b,int n,int k,double e,int max_restarts,int t_n, double t_s) {
+
+double* projMet (double *A,double *b,int n,int k,double e,int max_restarts,int t_n, double t_s) {
 
     OrthogonalSet set;
-    std::copy(std::begin(b),std::end(b), std::begin(set.v));
+    //std::copy(std::begin(b),std::end(b), std::begin(set.v));
     
     set.H = initArray(k*k);
     set.V = initArray(k*n);
@@ -131,12 +132,12 @@ double* projMet (const double *A,const double *b,int n,int k,double e,int max_re
 
         //intMet(set.H,set.k,G,t_n,t_s,set.k,eps); // G kan være in place, set.H kan endres, resten skal være uendret.
         //integrateArnoldi(double *A,int n,double *F,int t_n,double t_s,eps)
-        integrateArnoldi(set.H, set.k,G,t_n,t_s,eps)
+        integrateArnoldi(set.H, set.k,G,t_n,t_s,eps);
         
         eps = set.eps;
 
         //F = set.V*G + F;
-        cblas_dgemm(CblasNoTrans,CblasNoTrans,n,n,n,1.0,set.V,n,G,n,1.0,F,n);
+        cblas_dgemm(CblasColMajor,CblasNoTrans,CblasNoTrans,n,n,n,1.0,set.V,n,G,n,1.0,F,n);
 
         itr += 1;
     }
@@ -144,7 +145,7 @@ double* projMet (const double *A,const double *b,int n,int k,double e,int max_re
     return F;
 }
 
-*/
+
 
 
 

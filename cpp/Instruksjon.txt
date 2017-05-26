@@ -3,6 +3,8 @@ http://www.learncpp.com/
 
 Dep:
 lapacke/cblas: http://www.netlib.org/lapack/
+Install guide:
+https://stackoverflow.com/questions/40980752/lapack-lapacke-with-c-on-linux-compiling-linking-and-running
 c++14
 
 TESTS:

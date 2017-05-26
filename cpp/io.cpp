@@ -27,7 +27,7 @@ void printArray(double* vec, long n, long m){
 		for (long jj = 0; jj < m; jj++){
 
             //std::cout << vec[ii + jj*n] << "\t" ;
-            printf("%.4f\t", vec[ii + jj*n] );
+            printf("%.6f\t", vec[ii + jj*n] );
             std::cout << str;
 
 		}

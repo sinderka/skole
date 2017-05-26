@@ -1,10 +1,11 @@
 
-IDIR= -I ../../../lapack/LAPACKE/include/ -I ../../../lapack/CBLAS/include/ 
+IDIR= -I ../../../lapack-3.7.0/include/
 CXX=g++
-CPPFLAGS=-std=c++14 $(IDIR) -llapack -lcblas
+CPPFLAGS=-std=c++14 $(IDIR) -llapacke -llapack -lgfortran -lblas -ltmglib
 
 ODIR=.
-LDIR= -L ../../../lapack/CBLAS/src/ -L ../../../lapack/LAPACKE/src/ -L ../../../lapack/SRC/
+#LDIR= -L ../../../lapack/CBLAS/src/ -L ../../../lapack/LAPACKE/src/ -L ../../../lapack/SRC/
+LDIR= -L ../../../lapack-3.7.0/
 LDLIBS= ${LDIR}
 
 _DEPS= io.h krylov.h random_Arrayi.h tools.h test.h tools_Test.cpp krylov_Test.cpp

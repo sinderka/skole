@@ -140,8 +140,8 @@ void integrateArnoldi(double *A,int n,double *F,int t_n,double t_s,double eps) {
 //lapack_int LAPACKE_dgetrf( int matrix_layout, lapack_int m, lapack_int n,
 //                           double* a, lapack_int lda, lapack_int* ipiv );
 
-//    LAPACKE_dgetrf(LAPACK_COL_MAJOR,n,n,mat,n,IPIV);
-    //LAPACKE_dgetri(LAPACK_COL_MAJOR,n,mat,n,IPIV);
+    LAPACKE_dgetrf(LAPACK_COL_MAJOR,n,n,mat,n,IPIV);
+    LAPACKE_dgetri(LAPACK_COL_MAJOR,n,mat,n,IPIV);
 
     //A = eps*A
     cblas_dscal(n*n,eps,A,inc);

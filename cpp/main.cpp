@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <string>
-
+#include <cblas.h>
 
 //#include "../../include/cblas.h"
 /*
@@ -12,8 +12,8 @@
 #include <QApplication>
 #include <QPushButton>
 */
-#include "../../../lapack/CBLAS/include/cblas.h"
-#include "../../../lapack/LAPACKE/include/lapacke.h"
+#include "../../../lapack-3.7.0/CBLAS/include/cblas.h"
+#include "../../../lapack-3.7.0/LAPACKE/include/lapacke.h"
 
 // My project files
 #include "io.h"
