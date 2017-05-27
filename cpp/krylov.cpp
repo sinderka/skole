@@ -1,28 +1,52 @@
-//#include "cblas/include/cblas.h" // for BLAS
+#include "../../../lapack/CBLAS/include/cblas.h"            //http://www.netlib.org/blas/
+#include "../../../lapack-3.7.0/LAPACKE/include/lapacke.h"  //http://www.netlib.org/lapack/explore-html/index.html
 
-#include "../../../lapack/CBLAS/include/cblas.h"
 
 #include "krylov.h"
 #include "io.h"
 #include "random_Array.h"
 #include "tools.h"
 
-
-#include <stdio.h>
-#include <algorithm>    // std::copy
-
-//http://www.netlib.org/blas/
-//http://www.netlib.org/lapack/explore-html/index.html
-// definition of BLAS-functions:
-// DGEMV    (matrix-vector multiplication) args: T, m,n,a,A,lda,x,in,b,y,inc; y = a * A * x + b * y
-// DDOT     (vector-vector multiplication) args: n,x,inc,y,inc;               a = x' * y
-// DAXPY    (scale and add vector)         args: n,a,x,inc,y,inc;             y = a * x + y
-// DSCAL    (scale vector)                 args: n,a,x,inc;                   x = a * x
-// DGEMM    (matrix-matrix multiplication) args: T_A,T_B, n_A, m_A,m_B,a,A,lda,B,ldb,b,C,ldc
+#include <stdio.h>      // for printf
+#include <string.h>     // for memmove
+#include <algorithm>    // for std::copy
 
 
 
-void arnoldi(OrthogonalSet &set, double *A, long n, long k, double e ) {
+Krylov::Krylov(double *A, double *v, double tol,long n, long k) {
+
+    m_k = ( n < k ) ? n : k;
+
+    m_n = n;
+
+    m_A = A; 
+
+    m_V = initArray(m_n*m_k);
+    m_H = initArray(m_k*m_k);
+
+    m_v = initArray(n);
+    arrayToArray(m_v,0,0,m_n,v,0,0,m_n,1,m_n);
+
+    m_eps = tol+1;
+    m_tol = tol;
+
+}
+
+void Krylov::printK() {
+
+    print("A: ");
+    printArray(m_A,m_n,m_n);
+    print("V: ");
+    printArray(m_V,m_n,m_k);
+    print("H: ");
+    printArray(m_H,m_k,m_k);
+    print("v: ");
+    printArray(m_v,m_n,1);
+    printf("tol: %f,\teps: %f,\t n: %li,\t k: %li\n",m_tol,m_eps,m_n,m_k);
+    
+}
+
+void Krylov::arnoldi() {
 //INPUT: A , an array acting as a n*n matrix
 //		 b , an vector of length n
 // 	 	 n , number of rows in A and b
@@ -31,119 +55,201 @@ void arnoldi(OrthogonalSet &set, double *A, long n, long k, double e ) {
 //OUTPUT: an OrthogonalSet of the arnoldi iterations
 
 
-    k = ( n < k ) ? n : k;
-
     double *v_pntr;
-    double eps = norm(set.v,n,2);
+    m_eps = norm(m_v,m_n,2);
     long ii = 0;
-	int inc = 1;
+    int inc = 1;
 
-    //b = 1/eps
-    cblas_dscal(n,1/eps, set.v,inc);
+    //v *= 1/eps
+    cblas_dscal(m_n,1/m_eps, m_v,inc);
 
-    for (ii = 0; ii < k; ii++) {
+    for (ii = 0; ii < m_k; ii++) {
 
         //V[:][ii] = b
-        arrayToArray(set.V,ii,0,n,set.v,0,0,n,1,n);
+        // burde bruke memmove
+        arrayToArray(m_V,ii,0,m_n,m_v,0,0,m_n,1,m_n);
         
         //v_ii = V[:][ii]
-        v_pntr = &set.V[ii*n];
+        v_pntr = &m_V[ii*m_n];
 
         //b = A * v_ii
-        cblas_dgemv(CblasColMajor, CblasNoTrans,  n, n, 1.0, A,n,v_pntr,inc,  0.0 ,set.v, inc);
+        cblas_dgemv(CblasColMajor, CblasNoTrans,  m_n, m_n, 1.0, m_A,m_n,v_pntr,inc,  0.0 ,m_v, inc);
 
         for (long jj = 0; jj <= ii; jj++) {
 
             // v_jj = V[:][jj]
-            v_pntr = &set.V[jj*n];
+            v_pntr = &m_V[jj*m_n];
 
-            //H[ii][jj] = v_jj^T * b;
-            set.H[ii*k + jj] = cblas_ddot(n,v_pntr,inc,set.v,inc);
+            //H[ii][jj] = v_jj^T * v;
+            m_H[ii*m_k + jj] = cblas_ddot(m_n,v_pntr,inc,m_v,inc);
 
             //b = b - H(ii,jj) * V[:][i]
-            cblas_daxpy(n,-set.H[ii*k + jj],v_pntr,inc,set.v,inc);
+            cblas_daxpy(m_n,-m_H[ii*m_k + jj],v_pntr,inc,m_v,inc);
         }
 
-        eps = norm(set.v,n,2);
+        m_eps = norm(m_v,m_n,2);
 
-        //b = 1/eps
-        cblas_dscal(n,1/eps, set.v,inc);
-
-
-        if (eps < e) {
-			// V er for lang!
-
-            //H er for stor!
-            // Burde gjøres på en annen måte
-            
-            //set.V = initArray(n*(ii+1)); // std::copy
-            //arrayToArray(set.V,0,0,n, V,0,0,n,ii+1 ,n);
-            //std::copy(std::begin(set.V), std::begin(set.V) + n*(ii+1), std::begin(set.V));
-
-            //set.H = initArray((ii+1)*(ii+1)); //std::copy?? i loop? Ja, burde nok det!
-            //set.v = initArray(n); // no residual
+        //v = 1/eps
+        cblas_dscal(m_n,1/m_eps, m_v,inc);
 
 
-            //arrayToArray(set.H,0,0,ii+1,H,0,0,k,ii+1,ii+1);
+        if (m_eps < m_tol) {
 
+            //H = H[1:ii+1][1:ii+1]
+            double *H_pntr_new;
+            double *H_pntr_old;
 
-            set.eps = 0;
-            set.k = ii+1; 
+            for (long kk = 1; kk < ii+1; kk++ ) {
+
+                H_pntr_new = &m_H[kk*(ii+1)];
+                H_pntr_old = &m_H[m_k*kk];
+
+                memmove(H_pntr_new, H_pntr_old, (ii+1)*sizeof(double));
+
+            }
+
+            memmove(m_V, m_V, m_n*(ii+1)*sizeof(double));
+            m_v = initArray(m_n);
+
+            m_k = ii+1; 
+
             return;
-        } else if (ii < n-1) {
+
+        } else if (ii < m_n-1) {
 
             //H[ii][ii+1] = eps
-            set.H[ii*n + ii+1] = eps;
+            m_H[ii*m_n + ii+1] = m_eps;
         }
-	}
-
-    set.eps = eps;
-    set.k = ii;
-
-//    return set;
+    }
 }
 
 
+double* Krylov::projMet (int max_restarts,int t_n, double t_s) {
 
 
+    // set.v = b; (copy);
 
-
-
-double* projMet (double *A,double *b,int n,int k,double e,int max_restarts,int t_n, double t_s) {
-
-    OrthogonalSet set;
+    //memmove?
     //std::copy(std::begin(b),std::end(b), std::begin(set.v));
     
-    set.H = initArray(k*k);
-    set.V = initArray(k*n);
+    double *F = initArray(m_n*t_n);
+    double *G = initArray(m_k*t_n);
 
-    double *F = initArray(n*t_n);
-    double *G = initArray(k*t_n);
-
-    set.eps = e + 1;
-    double eps = norm(b,n,2);
+    double eps = norm(m_v,m_n,2);
     int itr = 0;
 
 
 
-    while (e > set.eps || max_restarts < itr ) {
+    while (m_tol > m_eps || max_restarts < itr ) {
 
-        arnoldi(set,A,n,k,e); // skal ikke endre A, 
+        arnoldi();
 
-        //intMet(set.H,set.k,G,t_n,t_s,set.k,eps); // G kan være in place, set.H kan endres, resten skal være uendret.
-        //integrateArnoldi(double *A,int n,double *F,int t_n,double t_s,eps)
-        integrateArnoldi(set.H, set.k,G,t_n,t_s,eps);
+        integrate(G,t_n,t_s,eps);
         
-        eps = set.eps;
+        eps = m_eps;
 
         //F = set.V*G + F;
-        cblas_dgemm(CblasColMajor,CblasNoTrans,CblasNoTrans,n,n,n,1.0,set.V,n,G,n,1.0,F,n);
+        cblas_dgemm(CblasColMajor,CblasNoTrans,CblasNoTrans,m_n,m_n,m_n,1.0,m_V,m_n,G,m_n,1.0,F,m_n);
 
         itr += 1;
     }
 
     return F;
 }
+
+void Krylov::subtractDiag(double *A,int n,double value) {
+
+    for (int ii = 0; ii < n*n; ii += n+1) {
+        A[ii] -= value;
+    }
+
+}
+
+void Krylov::integrate(double *F,int t_n,double t_s,double eps) {
+// Solves the equation du/dt = A*u + eps*e_1*F[-1][:] with u(0) = 0 
+//INPUT: A, an m x m array
+//       m, integer, and height of A and F
+//       F, an m*t_n array
+//       t_n number of steps in time
+//       t_s length of time-steps
+//OUTPUT: U
+
+    int inc = 1;
+    double *mat = initArray(m_n*m_n);
+
+    //mat = inv(eye(n) - t_s * mat)
+    int *IPIV = new int[m_n] ();
+    double *WORK;
+    int INFO;
+    cblas_daxpy(m_n*m_n,t_s,m_H,inc,mat,inc);
+    subtractDiag(mat,m_n,1.0);
+
+
+    LAPACKE_dgetrf(LAPACK_COL_MAJOR,m_n,m_n,mat,m_n,IPIV);
+    LAPACKE_dgetri(LAPACK_COL_MAJOR,m_n,mat,m_n,IPIV);
+
+    //A = eps*A
+    cblas_dscal(m_n*m_n,eps,m_H,inc);
+
+    // Pointers to F[:][i]
+    double *F_pntr_old, *F_pntr_current, F_pntr_next;
+
+    //remember old values
+    double F_old = eps*F[m_n-1];
+    double F_current = eps*F[m_n*2-1];
+    double F_next = eps*F[m_n*3-1];
+
+    F_pntr_current = &F[m_n];
+
+    cblas_dscal(m_n,F_current,mat,m_n);
+
+    for (int ii = 2; ii < t_n-1 ; ii += 2 ) {
+
+        //Saving the values needed from F
+        double F_old = F_current;                       //F[:][ii-1]
+        double F_current = F_next;                      //F[:][ii]
+        double F_next = eps*F[m_n*(ii+1) + m_n-1];      //eps*F[:][ii+1]
+
+        //Making pointers to F
+        double *F_pntr_old = & F[m_n*(ii-1) + m_n-1];   //F[-1][ii-1]
+        double *F_pntr_current = & F[m_n*ii + m_n-1];   //F[-1][ii]
+        double *F_pntr_next = & F[m_n*(ii+1) + m_n-1];  //F[-1][ii+1]
+
+
+        // U[:][ii] = U[:][ii-1] + A*U[:][ii-1] + F_old*e_1; 
+
+        // F[:][ii] = A*U[:][ii-1]
+        cblas_dgemv(CblasColMajor,CblasNoTrans,m_n,m_n,1.0,m_H,m_n,F_pntr_old,inc,0.0,F_pntr_current, inc);
+
+        // F[1][ii] += F_old
+        F[m_n*ii + m_n - 1] += F_old;
+
+        //F[:][ii] += F[:][ii-1]
+        cblas_daxpy(m_n,1.0,F_pntr_old,inc,F_pntr_current,inc);
+        
+
+        // U[:][ii+1] = mat*( U[:][ii] + F_next*e_1 )
+        F[m_n*ii + m_n - 1] += F_next;
+
+        cblas_dgemv(CblasColMajor,CblasNoTrans,m_n,m_n,1.0,mat,m_n,F_pntr_current,inc,0.0,F_pntr_next,inc);
+        
+        F[m_n*ii + m_n - 1] -= F_next;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

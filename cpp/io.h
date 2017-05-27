@@ -5,6 +5,8 @@
 
 // output functions
 void print(auto str);
+void print(std::string str);
+void print(char const* str);
 void printArray(double* mat, long n, long m);
 
 // input functions

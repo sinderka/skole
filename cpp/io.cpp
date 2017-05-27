@@ -11,9 +11,21 @@
 
 
 void print(auto str) {
+//INPUT: s , a type to print to the consolle
+
+    std::cout << str << "\n";
+}
+
+void print(std::string str) {
 //INPUT: s , a string to print to the consolli
 
     std::cout << str << "\n";
+}
+
+void print(const char * str) {
+
+    std::cout << str << "\n";
+
 }
 
 void printArray(double* vec, long n, long m){
