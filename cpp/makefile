@@ -4,16 +4,13 @@ CXX=g++
 CPPFLAGS=-std=c++14 $(IDIR) -llapacke -llapack -lgfortran -lblas -ltmglib
 
 ODIR=.
-#LDIR= -L ../../../lapack/CBLAS/src/ -L ../../../lapack/LAPACKE/src/ -L ../../../lapack/SRC/
 LDIR= -L ../../../lapack-3.7.0/
 LDLIBS= ${LDIR}
 
-_DEPS= io.h krylov.h random_Arrayi.h tools.h 
-#test.h tools_Test.cpp krylov_Test.cpp
+_DEPS= krylov.h tools.h test.h tools_Test.cpp krylov_Test.cpp
 DEPS=$(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ=io.o krylov.o random_Array.o tools.o 
-#tools_Test.o krylov_Test.o
+_OBJ=krylov.o tools.o tools_Test.o krylov_Test.o
 OBJ=$(patsubst %,$(ODIR)/%,$(_OBJ))
 
 $(ODIR)/%.o: %.c $(DEPS)

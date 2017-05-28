@@ -1,27 +1,25 @@
-//#include "cblas/include/cblas.h" // for BLAS
+
 
 
 #include <iostream>
 #include <string>
-#include <cblas.h>
+#include <stdio.h>
 
-//#include "../../include/cblas.h"
-/*
 // For QT
+/*
 #include "mainwindow.h"
 #include <QApplication>
 #include <QPushButton>
 */
+
 #include "../../../lapack-3.7.0/CBLAS/include/cblas.h"
 #include "../../../lapack-3.7.0/LAPACKE/include/lapacke.h"
 
 // My project files
-#include "io.h"
-#include "random_Array.h"
 #include "tools.h"
 #include "krylov.h"
 
-#include <stdio.h>
+
 
 
 int main(int argc, char ** argv ) {
@@ -40,13 +38,19 @@ int main(int argc, char ** argv ) {
 
     double *v = new double[n]   {1,2,3,4,5};
 
-    Krylov krylov_obj(A,v,tol,n,k);
+    double *A2 = new double[6*6] ();
+    A2[0] = 1; A2[7] = 2; A2[14] = 3; A2[21] = 4; A2[28] = 5; A2[35] = 6; 
+    double *v2 = new double[6] {1,1,1,1,1,1};
 
-    krylov_obj.printK();
+    Krylov krylov_obj(A2,v2,tol,6,k);
+
+    krylov_obj.print();
 
     krylov_obj.arnoldi();
 
-    krylov_obj.printK();
+    krylov_obj.print();
+
+    
 
 /*
     double *F = new double[n*t_n] {1,1,1,1,1,1,1,1,1,1,

@@ -1,9 +1,8 @@
-#include <cmath>
-#include <iostream>
+//#include <cmath>    
+#include <iostream> // for cout
 
 #include "krylov.h"
 #include "tools.h"
-#include "io.h"
 
 
 struct arnoldiAns {
@@ -19,68 +18,105 @@ struct arnoldiAns {
 };
 
 
-void tryArnoldi(OrthogonalSet set,double *mat,int n,double e,int k,arnoldiAns ans) {
-
-    set.H = initArray(k*k);
-    set.V = initArray(k*n);
+void tryArnoldi(Krylov krylov_obj, arnoldiAns ans) {
 
 	bool result = false; 
 	
 	try {
-        arnoldi(set,mat,n,k,e);
+        krylov_obj.arnoldi();
 
-        result =  (set.eps - ans.eps < 0.0001);
-        result *= (set.H[ans.h_c] - ans.h < 0.0001);
-		result *= (set.V[ans.V_c] - ans.V < 0.0001);
-		result *= (set.k == ans.k);
-		result *= (set.v[ans.v_c] - ans.v < 0.0001);
+        double *A = krylov_obj.getM_A();
+        double *b = krylov_obj.getM_b();
+
+        double *H = krylov_obj.getM_H();
+        double *V = krylov_obj.getM_V();
+
+        double *v = krylov_obj.getM_v();
+
+
+        double eps = krylov_obj.getM_eps();
+        long k = krylov_obj.getM_k();
+
+
+        result =  ((eps - ans.eps) < 0.0001);
+        result *= ((H[ans.h_c] - ans.h) < 0.0001);
+
+		result *= ((V[ans.V_c] - ans.V) < 0.0001);
+		result *= (k == ans.k);
+
+		result *= ((v[ans.v_c] - ans.v) < 0.0001);
+
 
 	} catch (int e) {
-		std::cout << "Error while running arrayToArray in test\n";
+		std::cout << "Error while running arnoldi in test\n";
 		result = false;
 	}
 
 	if ( !result ) {
+
 		std::cout << "Error in arnoldi, got\n";
-        std::cout << "eps: \t" << set.eps << ", expected " << ans.eps << "\n";
-        std::cout << "H[end]: " << set.H[ans.h_c] << ", expected " << ans.h << "\n";
-        std::cout << "V[end]: " << set.V[ans.V_c] << ", expected " << ans.V << "\n";
-        std::cout << "k: \t" << set.k << ", expected " << ans.k << "\n";
-        std::cout << "v: \t" << set.v[ans.v_c] << ", expected " << ans.v << "\n";
-//		std::cout << "\texpected\n";
-//        std::cout << "eps: " << ans << "\n";
+        krylov_obj.print();
+
+        std::cout << "expected: \n";
+        std::cout << "V["<< ans.V_c << "] = " << ans.V << "\n";
+        std::cout << "H["<< ans.h_c << "] = " << ans.h << "\n";
+        std::cout << "v["<< ans.v_c << "] = " << ans.v << "\n";
+        std::cout << "k = " << ans.k << "\n";
+        std::cout << "eps = " << ans.eps << "\n";
+
 	}
 }
 
 
 void arnoldiTest() {
 
-    OrthogonalSet set1;
-    int n = 5;
-    set1.v = new double[n] {1,2,3,4,5};
-    double *mat1 = new double[n*n] {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25};
 
+    // Creating test object
+    long n1 = 5, k1 = 3;
+    int t_n1 = 10;
+    double sim_time1 = 2;
+    double t_s1 = sim_time1/t_n1;
+    double tol1 = 0.01;
+    double *A1 = new double[n1*n1] {1,2,3,4,5,
+                                 6,7,8,9,10,
+                                 11,12,13,14,15,
+                                 16,17,18,19,20,
+                                 21,22,23,24,25};
+
+    double *v1 = new double[n1]   {1,2,3,4,5};
+
+    Krylov krylov_obj1(A1,v1,tol1,n1,k1);
+    
+    // Creating 
 	arnoldiAns ans1;
 	ans1.k = 2;
 	ans1.V = -0.3814; ans1.V_c = 9;
 	ans1.h = -4.5455; ans1.h_c = 3;
 	ans1.v = 0.0; ans1.v_c = 4;
-	ans1.eps = 0;
-    tryArnoldi(set1,mat1,n,0.01,3,ans1);
+    ans1.eps = 0;
 
-    OrthogonalSet set2;
-    n = 6;
-    set2.v = new double[n] {1,1,1,1,1,1};
-    double *mat2 = new double[n*n] ();
-    mat2[0] = 1; mat2[7] = 2; mat2[14] = 3; mat2[21] = 4; mat2[28] = 5; mat2[35] = 6; 
+    tryArnoldi(krylov_obj1,ans1);
+
+    
+    long n2 = 6, k2 = 3;
+    int t_n2 = 10;
+    double sim_time2 = 2;
+    double t_s2 = sim_time2/t_n2;
+    double tol2 = 0.01;
+    double *A2 = new double[n2*n2] ();
+    A2[0] = 1; A2[7] = 2; A2[14] = 3; A2[21] = 4; A2[28] = 5; A2[35] = 6; 
+    double *v2 = new double[n2] {1,1,1,1,1,1};
+
+    Krylov krylov_obj2(A2,v2,tol2,n2,k2);
 
 	arnoldiAns ans2;
 	ans2.k = 3;
 	ans2.V = 0.545545; ans2.V_c = 17;
 	ans2.h = 3.5; ans2.h_c = 8;
 	ans2.v = 0.372678; ans2.v_c = 5;
-	ans2.eps = 1.31747;
-    tryArnoldi(set2,mat2,n,0.01,3,ans2);
+    ans2.eps = 1.31747;
+    
+    tryArnoldi(krylov_obj2,ans2);
 
 }
 

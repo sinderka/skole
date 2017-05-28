@@ -3,13 +3,13 @@
 
 
 #include "krylov.h"
-#include "io.h"
-#include "random_Array.h"
 #include "tools.h"
 
 #include <stdio.h>      // for printf
 #include <string.h>     // for memmove
 #include <algorithm>    // for std::copy
+
+#include <iostream>
 
 
 
@@ -21,30 +21,35 @@ Krylov::Krylov(double *A, double *v, double tol,long n, long k) {
 
     m_A = A; 
 
-    m_V = initArray(m_n*m_k);
-    m_H = initArray(m_k*m_k);
+    m_V = Tools::initArray(m_n*m_k);
+    m_H = Tools::initArray(m_k*m_k);
 
-    m_v = initArray(n);
-    arrayToArray(m_v,0,0,m_n,v,0,0,m_n,1,m_n);
+    m_v = Tools::initArray(n); // Dårlig løsning!
+    memmove(m_v,v,m_n*sizeof(double));
+
+    //Tools::arrayToArray(m_v,0,0,m_n,v,0,0,m_n,1,m_n);
+
+    m_b = v;
 
     m_eps = tol+1;
     m_tol = tol;
 
 }
 
-void Krylov::printK() {
+void Krylov::print() {
 
-    print("A: ");
-    printArray(m_A,m_n,m_n);
-    print("V: ");
-    printArray(m_V,m_n,m_k);
-    print("H: ");
-    printArray(m_H,m_k,m_k);
-    print("v: ");
-    printArray(m_v,m_n,1);
-    printf("tol: %f,\teps: %f,\t n: %li,\t k: %li\n",m_tol,m_eps,m_n,m_k);
+    Tools::print((char*) ("A: "));
+    Tools::print(m_A,m_n,m_n);
+    Tools::print((char*) ("V: "));
+    Tools::print(m_V,m_n,m_k);
+    Tools::print((char*) ("H: "));
+    Tools::print(m_H,m_k,m_k);
+    Tools::print((char*) ("v: "));
+    Tools::print(m_v,m_n,1);
+    printf("tol: %f,\teps: %f,\tn: %li,\tk: %li\n",m_tol,m_eps,m_n,m_k);
     
 }
+
 
 void Krylov::arnoldi() {
 //INPUT: A , an array acting as a n*n matrix
@@ -56,7 +61,7 @@ void Krylov::arnoldi() {
 
 
     double *v_pntr;
-    m_eps = norm(m_v,m_n,2);
+    m_eps = Tools::norm(m_v,m_n,2);
     long ii = 0;
     int inc = 1;
 
@@ -65,9 +70,11 @@ void Krylov::arnoldi() {
 
     for (ii = 0; ii < m_k; ii++) {
 
+        v_pntr = &m_V[ii*m_n];        
         //V[:][ii] = b
         // burde bruke memmove
-        arrayToArray(m_V,ii,0,m_n,m_v,0,0,m_n,1,m_n);
+        //memmove(m_V,m_v,m_n*sizeof(double));
+        Tools::arrayToArray(m_V,ii,0,m_n,m_v,0,0,m_n,1,m_n);
         
         //v_ii = V[:][ii]
         v_pntr = &m_V[ii*m_n];
@@ -87,7 +94,7 @@ void Krylov::arnoldi() {
             cblas_daxpy(m_n,-m_H[ii*m_k + jj],v_pntr,inc,m_v,inc);
         }
 
-        m_eps = norm(m_v,m_n,2);
+        m_eps = Tools::norm(m_v,m_n,2);
 
         //v = 1/eps
         cblas_dscal(m_n,1/m_eps, m_v,inc);
@@ -109,17 +116,20 @@ void Krylov::arnoldi() {
             }
 
             memmove(m_V, m_V, m_n*(ii+1)*sizeof(double));
-            m_v = initArray(m_n);
+            m_v = Tools::initArray(m_n);
 
             m_k = ii+1; 
 
             return;
 
-        } else if (ii < m_n-1) {
-
-            //H[ii][ii+1] = eps
+        } else if (ii < m_k-1) {
+            
             m_H[ii*m_n + ii+1] = m_eps;
+        } else {
+
+            return;
         }
+ 
     }
 }
 
@@ -132,10 +142,10 @@ double* Krylov::projMet (int max_restarts,int t_n, double t_s) {
     //memmove?
     //std::copy(std::begin(b),std::end(b), std::begin(set.v));
     
-    double *F = initArray(m_n*t_n);
-    double *G = initArray(m_k*t_n);
+    double *F = Tools::initArray(m_n*t_n);
+    double *G = Tools::initArray(m_k*t_n);
 
-    double eps = norm(m_v,m_n,2);
+    double eps = Tools::norm(m_v,m_n,2);
     int itr = 0;
 
 
@@ -175,7 +185,7 @@ void Krylov::integrate(double *F,int t_n,double t_s,double eps) {
 //OUTPUT: U
 
     int inc = 1;
-    double *mat = initArray(m_n*m_n);
+    double *mat = Tools::initArray(m_n*m_n);
 
     //mat = inv(eye(n) - t_s * mat)
     int *IPIV = new int[m_n] ();

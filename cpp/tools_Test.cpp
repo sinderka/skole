@@ -2,7 +2,6 @@
 #include <iostream>
 
 #include "tools.h"
-#include "io.h"
 
 
 
@@ -11,7 +10,7 @@ void tryNorm(double *vec,int n,int p,int ans) {
     double result;
 
     try {
-        result = norm(vec,n,p);
+        result = Tools::norm(vec,n,p);
     } catch (int e) {
         std::cout << "Error while running norm in test\n";    
     }
@@ -44,7 +43,7 @@ void tryArrayToArray(double *A,int start_col_A,int start_row_A, int n_A, int m_A
 	int result(0); 
 	
 	try {
-		arrayToArray(A,start_col_A,start_row_A,n_A,B,start_col_B, start_row_B,n_B, n_cols, n_rows );
+		Tools::arrayToArray(A,start_col_A,start_row_A,n_A,B,start_col_B, start_row_B,n_B, n_cols, n_rows );
 
 		for (int ii = 0; ii < n_A*m_A; ii++) {
 			result += (ans[ii] != A[ii]);
@@ -58,9 +57,9 @@ void tryArrayToArray(double *A,int start_col_A,int start_row_A, int n_A, int m_A
 
 	if ( result > 0 ) {
 		std::cout << "Error in arrayToArray, got\n";
-		printArray(A,n_A,m_A);
+		Tools::print(A,n_A,m_A);
 		std::cout << "\texpected\n";
-		printArray(ans,n_A,m_A);
+		Tools::print(ans,n_A,m_A);
 	}
 }
 
