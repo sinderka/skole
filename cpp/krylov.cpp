@@ -73,8 +73,7 @@ void Krylov::arnoldi() {
         v_pntr = &m_V[ii*m_n];        
         //V[:][ii] = b
         // burde bruke memmove
-        //memmove(m_V,m_v,m_n*sizeof(double));
-        Tools::arrayToArray(m_V,ii,0,m_n,m_v,0,0,m_n,1,m_n);
+        memmove(v_pntr,m_v,m_n*sizeof(double));
         
         //v_ii = V[:][ii]
         v_pntr = &m_V[ii*m_n];
