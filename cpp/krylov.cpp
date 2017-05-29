@@ -52,12 +52,7 @@ void Krylov::print() {
 
 
 void Krylov::arnoldi() {
-//INPUT: A , an array acting as a n*n matrix
-//		 b , an vector of length n
-// 	 	 n , number of rows in A and b
-// 		 e , a convergence qrterion
-// 		 k , a maximum number of krylov iterations
-//OUTPUT: an OrthogonalSet of the arnoldi iterations
+//Performs m_k Arnoldi-iterations or until m_eps < m_tol
 
 
     double *v_pntr;
@@ -133,31 +128,25 @@ void Krylov::arnoldi() {
 }
 
 
-double* Krylov::projMet (int max_restarts,int t_n, double t_s) {
+double* Krylov::project (int max_restarts,int t_n, double t_s) {
 
-
-    // set.v = b; (copy);
-
-    //memmove?
-    //std::copy(std::begin(b),std::end(b), std::begin(set.v));
-    
     double *F = Tools::initArray(m_n*t_n);
     double *G = Tools::initArray(m_k*t_n);
 
     double eps = Tools::norm(m_v,m_n,2);
     int itr = 0;
+    print();
 
 
-
-    while (m_tol > m_eps || max_restarts < itr ) {
+    while (m_tol > m_eps || max_restarts > itr ) {
 
         arnoldi();
 
         integrate(G,t_n,t_s,eps);
-        
+
         eps = m_eps;
 
-        //F = set.V*G + F;
+        //F = m_V*G + F;
         cblas_dgemm(CblasColMajor,CblasNoTrans,CblasNoTrans,m_n,m_n,m_n,1.0,m_V,m_n,G,m_n,1.0,F,m_n);
 
         itr += 1;
@@ -244,6 +233,8 @@ void Krylov::integrate(double *F,int t_n,double t_s,double eps) {
         
         F[m_n*ii + m_n - 1] -= F_next;
     }
+
+    Tools::print(F,m_k,t_n);
 }
 
 

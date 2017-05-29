@@ -33,10 +33,8 @@ void tryArnoldi(Krylov krylov_obj, arnoldiAns ans) {
 
         double *v = krylov_obj.getM_v();
 
-
         double eps = krylov_obj.getM_eps();
         long k = krylov_obj.getM_k();
-
 
         result =  ((eps - ans.eps) < 0.0001);
         result *= ((H[ans.h_c] - ans.h) < 0.0001);
@@ -45,7 +43,6 @@ void tryArnoldi(Krylov krylov_obj, arnoldiAns ans) {
 		result *= (k == ans.k);
 
 		result *= ((v[ans.v_c] - ans.v) < 0.0001);
-
 
 	} catch (int e) {
 		std::cout << "Error while running arnoldi in test\n";

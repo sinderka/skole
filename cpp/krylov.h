@@ -1,7 +1,6 @@
 #ifndef KRYLOV_H
 #define KRYLOV_H
 
-
 class Krylov {
 
     private:
@@ -15,10 +14,10 @@ class Krylov {
         double *m_v;        //Vector with height n
 
         double m_eps;       //Residual
-        double m_tol;       //Residual
+        double m_tol;       //Max allowed residual
 
-        long m_n;           // Height of V and v
-        long m_k;           // Size of H, width of V
+        long m_n;           //Height of V and v
+        long m_k;           //Size of H, width of V
 
     public:
     
@@ -28,7 +27,7 @@ class Krylov {
 
         void arnoldi();
 
-        double* projMet(int max_restarts, int t_n, double t_s);
+        double* project(int max_restarts, int t_n, double t_s);
 
         void subtractDiag(double *A,int n,double value);
 
@@ -46,7 +45,5 @@ class Krylov {
 
         long getM_k() {return m_k;}
 };
-
-
 
 #endif
