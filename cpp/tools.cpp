@@ -166,7 +166,7 @@ void Tools::print(double* vec, long n, long m){
 
 		for (long jj = 0; jj < m; jj++){
 
-            printf("%.6f\t", vec[ii + jj*n] );
+            printf("%.10f\t", vec[ii + jj*n] );
             std::cout << str;
 
 		}

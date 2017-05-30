@@ -29,7 +29,7 @@ class Krylov {
 
         double* project(int max_restarts, int t_n, double t_s);
 
-        void subtractDiag(double *A,int n,double value);
+        void addDiag(double *A,int n,double value);
 
         void integrate(double *F, int t_n, double t_s, double eps);
 

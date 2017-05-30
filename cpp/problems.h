@@ -8,6 +8,8 @@ class Problem {
         long m_n;
         long m_t_n;
 
+        double m_t_s;
+
         double * m_solution;
         
     public:
@@ -15,8 +17,13 @@ class Problem {
         Problem() {}
 
         double compareSolution(double *F);
-        void setProblem(long n, long t_n, double* solution);
+        void setProblem(long n, long t_n, double t_s, double* solution);
 
+        long getM_n() {return m_n;}
+        long getM_t_n() {return m_t_n;} 
+        long getM_t_s() {return m_t_s;} 
+
+        double * getM_solution() {return m_solution;}
 };
 
 class Test1 : public Problem {
@@ -38,7 +45,7 @@ class Test1 : public Problem {
          double * getM_A() {return m_A;}
          double * getM_v() {return m_v;}
          double * getM_f() {return m_f;}
-         double * getM_solution() {return m_solution;}
+
 
 };
 

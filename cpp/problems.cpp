@@ -7,10 +7,12 @@
 
 ///////////////Problem///////////////
 
-void Problem::setProblem(long n, long t_n, double *solution) {
+void Problem::setProblem(long n, long t_n, double t_s, double *solution) {
 
     m_n = n;
     m_t_n = t_n;
+
+    m_t_s = t_s;
     
     m_solution = solution;
 
@@ -18,7 +20,7 @@ void Problem::setProblem(long n, long t_n, double *solution) {
 
 double Problem::compareSolution(double *F) {
 
-    double max_diff = 1e300;
+    double max_diff = fabs(F[0] - m_solution[0] );
     double diff;
 
     for (int ii = 0; ii < m_n; ii ++) {
@@ -34,22 +36,22 @@ double Problem::compareSolution(double *F) {
 
 ////////////////Test1////////////////
 
-Test1::Test1(long n,long t_n) : Problem() {
+Test1::Test1(long n,long t_n) /*: Problem()*/ {
 
-    double value = (double) 1/(m_n);
+    double value = (double) 1/(n);
 
     // set parent attr
-    double *solution = Tools::initArray(m_n*m_t_n); // u = v*f*x
+    double *solution = Tools::initArray(n*t_n); // u = v*f*x
 
-    for (int ii = 0; ii < m_n; ii++) {
+    for (int ii = 0; ii < n; ii++) {
 
-        for (int jj = 0; jj < m_t_n; jj++) {
+        for (int jj = 0; jj < t_n; jj++) {
 
-            solution[jj*m_n + ii] = value*ii;
+            solution[jj*n + ii] = value*ii;
         }
     }
-
-    setProblem( n, t_n, solution);
+    double t_s = (double)1/t_n;
+    setProblem( n, t_n, t_s, solution);
 
     // instanciate variables
 

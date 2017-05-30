@@ -7,7 +7,7 @@
 
 #include <stdio.h>      // for printf
 #include <string.h>     // for memmove
-#include <algorithm>    // for std::copy
+#include <cstring>      // for memset
 
 #include <iostream>
 
@@ -24,10 +24,10 @@ Krylov::Krylov(double *A, double *v, double tol,long n, long k) {
     m_V = Tools::initArray(m_n*m_k);
     m_H = Tools::initArray(m_k*m_k);
 
-    m_v = Tools::initArray(n); // Dårlig løsning!
-    memmove(m_v,v,m_n*sizeof(double));
+    m_v = Tools::initArray(n);
+    //memmove(m_v,v,m_n*sizeof(double));
 
-    //Tools::arrayToArray(m_v,0,0,m_n,v,0,0,m_n,1,m_n);
+    Tools::arrayToArray(m_v,0,0,m_n,v,0,0,m_n,1,m_n);
 
     m_b = v;
 
@@ -135,7 +135,7 @@ double* Krylov::project (int max_restarts,int t_n, double t_s) {
 
     double eps = Tools::norm(m_v,m_n,2);
     int itr = 0;
-    print();
+    //print();
 
 
     while (m_tol > m_eps || max_restarts > itr ) {
@@ -155,14 +155,15 @@ double* Krylov::project (int max_restarts,int t_n, double t_s) {
     return F;
 }
 
-void Krylov::subtractDiag(double *A,int n,double value) {
+void Krylov::addDiag(double *A,int n,double value) {
 
     for (int ii = 0; ii < n*n; ii += n+1) {
-        A[ii] -= value;
+        A[ii] += value;
     }
 
 }
-
+// Rydd opp i denne!
+// Fjern t_s fra denne!
 void Krylov::integrate(double *F,int t_n,double t_s,double eps) {
 // Solves the equation du/dt = A*u + eps*e_1*F[-1][:] with u(0) = 0 
 //INPUT: A, an m x m array
@@ -173,68 +174,88 @@ void Krylov::integrate(double *F,int t_n,double t_s,double eps) {
 //OUTPUT: U
 
     int inc = 1;
-    double *mat = Tools::initArray(m_n*m_n);
-
-    //mat = inv(eye(n) - t_s * mat)
-    int *IPIV = new int[m_n] ();
-    double *WORK;
-    int INFO;
-    cblas_daxpy(m_n*m_n,t_s,m_H,inc,mat,inc);
-    subtractDiag(mat,m_n,1.0);
 
 
-    LAPACKE_dgetrf(LAPACK_COL_MAJOR,m_n,m_n,mat,m_n,IPIV);
-    LAPACKE_dgetri(LAPACK_COL_MAJOR,m_n,mat,m_n,IPIV);
+
+
+
+
+
+
+    //mat = inv(eye(n)/ht - m_H)
+    double *mat = Tools::initArray(m_k*m_k);
+    cblas_daxpy(m_k*m_k,-1.0,m_A,inc,mat,inc);
+    int *IPIV = new int[m_k] ();
+    addDiag(mat,m_k,(double)1/eps);
+    LAPACKE_dgetrf(LAPACK_COL_MAJOR,m_k,m_k,mat,m_k,IPIV);
+    LAPACKE_dgetri(LAPACK_COL_MAJOR,m_k,mat,m_k,IPIV);
 
     //A = eps*A
-    cblas_dscal(m_n*m_n,eps,m_H,inc);
+    //cblas_dscal(m_k*m_k,eps,m_H,inc);
+    cblas_dscal(m_k*m_k,eps,m_A,inc);
 
     // Pointers to F[:][i]
-    double *F_pntr_old, *F_pntr_current, F_pntr_next;
+    double *F_pntr_old, *F_pntr_current, *F_pntr_next;
+    F_pntr_current = &F[m_k];
 
     //remember old values
-    double F_old = eps*F[m_n-1];
-    double F_current = eps*F[m_n*2-1];
-    double F_next = eps*F[m_n*3-1];
+    double F_old = eps*F[m_k - 1];
+    double F_current = eps*F[m_k*2 - 1];
+    double F_next = eps*F[m_k*2 - 1];
+    double F_far = eps*F[m_k*3 - 1];
 
-    F_pntr_current = &F[m_n];
 
-    cblas_dscal(m_n,F_current,mat,m_n);
+    std::cout << "mat = \n" ;
+    Tools::print(mat,3,3); //////////////////
+    
+    //F[:][1] = F[-1][1]*mat[:][0]
+    std::memset(F_pntr_current, 0, m_k*sizeof(double));
+    cblas_daxpy(m_k,F_current/eps,mat,inc,F_pntr_current,inc);
+    
+
+    Tools::print(F,3,6);
 
     for (int ii = 2; ii < t_n-1 ; ii += 2 ) {
 
-        //Saving the values needed from F
-        double F_old = F_current;                       //F[:][ii-1]
-        double F_current = F_next;                      //F[:][ii]
-        double F_next = eps*F[m_n*(ii+1) + m_n-1];      //eps*F[:][ii+1]
+        F_old = F_next;                             //F[:][ii-1]
+        F_current = F_far;                          //F[:][ii]
+        F_next = eps*F[m_k*(ii+1) + m_k - 1 ];      //F[:][ii+1]
+        F_far = eps*F[m_k*(ii+2) + m_k - 1 ];       //F[:][ii+2]
+
+        std::cout << "ii = " << ii << " F values\n" ;
+        std::cout << "F_old = " << F_old << " F_current = " << F_current << " F_next " << F_next << "\n";
 
         //Making pointers to F
-        double *F_pntr_old = & F[m_n*(ii-1) + m_n-1];   //F[-1][ii-1]
-        double *F_pntr_current = & F[m_n*ii + m_n-1];   //F[-1][ii]
-        double *F_pntr_next = & F[m_n*(ii+1) + m_n-1];  //F[-1][ii+1]
+        F_pntr_old = & F[m_k*(ii-1)];   //F[-1][ii-1]
+        F_pntr_current = & F[m_k*ii];   //F[-1][ii]
+        F_pntr_next = & F[m_k*(ii+1)];  //F[-1][ii+1]
 
 
         // U[:][ii] = U[:][ii-1] + A*U[:][ii-1] + F_old*e_1; 
 
         // F[:][ii] = A*U[:][ii-1]
-        cblas_dgemv(CblasColMajor,CblasNoTrans,m_n,m_n,1.0,m_H,m_n,F_pntr_old,inc,0.0,F_pntr_current, inc);
+        //cblas_dgemv(CblasColMajor,CblasNoTrans,m_k,m_k,1.0,m_H,m_k,F_pntr_old,inc,0.0,F_pntr_current, inc);
+        cblas_dgemv(CblasColMajor,CblasNoTrans,m_k,m_k,1.0,m_A,m_k,F_pntr_old,inc,0.0,F_pntr_current, inc);
 
-        // F[1][ii] += F_old
-        F[m_n*ii + m_n - 1] += F_old;
+        // F[0][ii] += F_old
+        F[m_k*ii] += F_old;
 
         //F[:][ii] += F[:][ii-1]
-        cblas_daxpy(m_n,1.0,F_pntr_old,inc,F_pntr_current,inc);
-        
+        cblas_daxpy(m_k,1.0,F_pntr_old,inc,F_pntr_current,inc);
 
-        // U[:][ii+1] = mat*( U[:][ii] + F_next*e_1 )
-        F[m_n*ii + m_n - 1] += F_next;
+        F[m_k*ii] += F_next;
 
-        cblas_dgemv(CblasColMajor,CblasNoTrans,m_n,m_n,1.0,mat,m_n,F_pntr_current,inc,0.0,F_pntr_next,inc);
+        cblas_dgemv(CblasColMajor,CblasNoTrans,m_k,m_k,1/eps,mat,m_k,F_pntr_current,inc,0.0,F_pntr_next,inc);
         
-        F[m_n*ii + m_n - 1] -= F_next;
+        F[m_k*ii] -= F_next;
+
+        //Saving the values needed from F
+
+
+
     }
 
-    Tools::print(F,m_k,t_n);
+    //Tools::print(F,m_k,t_n);
 }
 
 
