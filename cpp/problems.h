@@ -17,11 +17,10 @@ class Problem {
         Problem() {}
 
         double compareSolution(double *F);
-        void setProblem(long n, long t_n, double t_s, double* solution);
+        void setProblem(long n, long t_n, double* solution);
 
         long getM_n() {return m_n;}
         long getM_t_n() {return m_t_n;} 
-        long getM_t_s() {return m_t_s;} 
 
         double * getM_solution() {return m_solution;}
 };

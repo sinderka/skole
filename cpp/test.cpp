@@ -1,10 +1,14 @@
-#include "test.h"
+#include <iostream> // for cout
+
+#include "test.h" // 
 
 
 int main() {
 
-    toolsTest();
+    //toolsTest();
     krylovTest();
+
+    std::cout << "==========Ran all tests!==========\n";
 
     return 0;
 }

@@ -7,12 +7,11 @@
 
 ///////////////Problem///////////////
 
-void Problem::setProblem(long n, long t_n, double t_s, double *solution) {
+void Problem::setProblem(long n, long t_n, double *solution) {
 
     m_n = n;
     m_t_n = t_n;
 
-    m_t_s = t_s;
     
     m_solution = solution;
 
@@ -50,8 +49,8 @@ Test1::Test1(long n,long t_n) /*: Problem()*/ {
             solution[jj*n + ii] = value*ii;
         }
     }
-    double t_s = (double)1/t_n;
-    setProblem( n, t_n, t_s, solution);
+
+    setProblem( n, t_n, solution);
 
     // instanciate variables
 

@@ -7,7 +7,7 @@ ODIR=.
 LDIR= -L ../../../lapack-3.7.0/
 LDLIBS= ${LDIR}
 
-_DEPS= krylov.h tools.h test.h problems.h tools_Test.cpp krylov_Test.cpp 
+_DEPS= krylov.h tools.h test.h problems.h krylov_Test.cpp 
 DEPS=$(patsubst %,$(IDIR)/%,$(_DEPS))
 
 _OBJ=krylov.o tools.o problems.o

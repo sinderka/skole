@@ -1,8 +1,10 @@
 //#include <cmath>    
 #include <iostream> // for cout
+#include <cmath>    // for fabs
 
 #include "krylov.h"
 #include "tools.h"
+
 
 
 struct arnoldiAns {
@@ -47,6 +49,7 @@ void tryArnoldi(Krylov krylov_obj, arnoldiAns ans) {
 	} catch (int e) {
 		std::cout << "Error while running arnoldi in test\n";
 		result = false;
+        return;
 	}
 
 	if ( !result ) {
@@ -117,9 +120,128 @@ void arnoldiTest() {
 
 }
 
+void tryIntegrate(Krylov krylov_obj,double *F, int t_n,double *ans) {
+
+    bool result = true;
+
+    try {
+
+        krylov_obj.arnoldi();
+
+        krylov_obj.integrate(F,6,krylov_obj.getM_eps());
+
+        for (int ii = 0; ii < t_n; ii++) {
+
+            result *= (fabs(F[ii] - ans[ii]) < 0.001);
+        }
+
+
+    } catch (int e) {
+
+		std::cout << "Error while running krylov integration in test\n";
+		result = false;
+        return;
+    }
+
+    if (!result) {
+
+        std::cout << "Error in integration with Arnoldi, got\n";
+
+        Tools::print(F,krylov_obj.getM_k(),t_n);
+    
+        std::cout << "expected: \n";
+
+        Tools::print(ans,krylov_obj.getM_k(),t_n);    
+    }
+}
+
+
+void integrateTest() {
+
+    long n = 3;
+    int k = 1;
+    int t_n = 6;
+    double tol = 0.001;
+    double *F = new double[t_n] {0,2,3,4,5,6};
+    double *A = new double[n*n] {1,4,7,2,5,8,3,6,9};
+    double *v = new double[t_n] {1,1,1};
+
+    double *ans = new double[t_n] {0.0,-0.1345540323,-0.2691080646,-0.2666443151,-0.2641805655,-0.4012434598 }; 
+
+    Krylov krylov_obj(A,v,tol,n,k);
+
+    tryIntegrate(krylov_obj,F,t_n,ans);
+
+}
+
+void tryProject(Krylov krylov_obj, double * F, int t_n, double * ans, int max_restarts) {
+
+    bool result = true;
+
+    double *U;
+
+    try {
+
+        U = krylov_obj.project(F,max_restarts,t_n);
+
+        for (int ii = 0; ii < t_n*krylov_obj.getM_n(); ii++) {
+
+            result *= (fabs(U[ii] - ans[ii]) < 0.001);
+        }
+
+
+    } catch (int e) {
+
+		std::cout << "Error while running projection in test\n";
+		result = false;
+        return;
+
+    }
+
+    if (!result) {
+
+        std::cout << "Error in project, got\n";
+
+        Tools::print(U,krylov_obj.getM_n(),t_n);
+    
+        std::cout << "expected: \n";
+
+        Tools::print(ans,krylov_obj.getM_n(),t_n);  
+    }
+}
+
+void projectTest() {
+
+
+    long n = 3;
+    int k = 2, t_n = 6;
+    double tol = 0.001; 
+    double *v = new double[n] {1,1,1};
+    double *F = new double[k*t_n] {0,0,0,2,0,3,0,4,0,5,0,6};
+    double *A = new double[n*n] {1,4,7,2,5,8,3,6,9};
+
+    double * ans = new double[n*t_n] {0.0,0.0,0.0,0.0481125224,-0.0962250449,-0.2405626122,0.0962250449,-0.1924500897,
+                                        -0.4811252243,0.3127313958,-0.0481125224,-0.4089564407,0.5292377468,0.0962250449,
+                                        -0.3367876570,0.5653221386,-0.2646188734,-1.0945598853 };
+/*
+    double * ans = new double[n*t_n] {0.0,0.0481125224,0.0962250449,0.3127313958,0.5292377468,0.5653221386,
+                                    0.0,-0.0962250449,-0.1924500897,-0.0481125224,0.0962250449,-0.2646188734,
+                                    0.0,-0.2405626122,-0.4811252243,-0.4089564407,-0.3367876570,-1.0945598853};
+*/
+
+    Krylov krylov_obj(A,v,tol,n,k);
+
+    tryProject(krylov_obj, F,t_n,ans,2);
+
+}
+
+
+
 void krylovTest() {
 
     arnoldiTest();
+    integrateTest();
+    projectTest();
 
 }
 

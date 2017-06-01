@@ -6,7 +6,6 @@
 #include "../../../lapack/CBLAS/include/cblas.h"    //for cblas
 #include "../../../lapack/LAPACKE/include/lapacke.h"//for lapack
 
-#include <cmath>    // for pow
 #include <iostream> // for cout and cin
 #include <cstdlib>  // for rand() and srand()
 #include <ctime>    // for time()
@@ -16,27 +15,27 @@
 
 // allocate
 
-double* Tools::initArray(long n){
+double* Tools::initArray(long length){
 // creates an array of length n with only zeros
-//INPUT: n , size of array
-//OUTPUT: vec , array with n doubles
+//INPUT: length , length of array
+//OUTPUT: vec , array with length doubles
 
-    double *vec = new double[n] ();
+    double *vec = new double[length] ();
 
     return vec;
 }
 
-double* randomArray(long n, int seed){
+double* randomArray(long length, int seed){
 //creates a vector of length n with radom elements
-//INPUT: n , length of desired array
+//INPUT: length , length of desired array
 // 		 seed , a number given to make sure calls back to back does not return identical random numbers
-//OUTPUT: rand_vec , a random vector of length n
+//OUTPUT: rand_vec , a random vector of length length
 
     srand((u_int)(time(0)) + seed);
 
-    double *rand_vec = Tools::initArray(n);
+    double *rand_vec = Tools::initArray(length);
 
-    for (int ii = 0; ii < n ; ii++) {
+    for (int ii = 0; ii < length ; ii++) {
 
         // random number between -1 and 1
         rand_vec[ii] = ((double)rand()/RAND_MAX)*2-1;
@@ -44,136 +43,21 @@ double* randomArray(long n, int seed){
     return rand_vec;
 }
 
-// norm
+void Tools::print(double* vec, long n_row, long n_col){
+//Prints array with n_row rows and n_col cols
+//INPUT: vec , an array of length n_row*n_col
+// 		 n_row , number of rows to print vec in
+//		 n_col , number of cols to print vec in
 
-double Tools::norm(double * vec, long n, int p) {
-//Returns the p-norm of the vector
-//INPUT: vec, array of n doubles
-//		 n , length of array
-//		 p , the norm
-//OUTPUT: sum , returns the p norm of vec, max norm assumed when p > 99
+    for (long ii = 0; ii < n_row; ii++) {
 
-    double value = 0;
+		for (long jj = 0; jj < n_col; jj++){
 
-    if (p > 99) { 
-    //returns maximum number in vec
-        
-        for (long ii = 0; ii < n; ii++) {
-
-            value = (value < fabs(vec[ii])) ? fabs(vec[ii]) : value;
-        }
-
-		return value;
-
-    } else if (p == 0) { 
-    // returns number of elements in vec
-
-        return n;
-
-    } else { 
-    // calculates p norm
-
-        for (long ii = 0; ii < n; ii++) {
-
-            value += pow(fabs(vec[ii]),p);
-        }
-
-		return pow(value,1.0/p);
-    }
-    // Something very wrong happend
-    return -1;
-}
-
-// assign
-
-void Tools::arrayToArray(double *A, long start_col_A, long start_row_A, long height_A,
-                  double *B, long start_col_B, long start_row_B, long height_B,
-                  long n_cols, long n_rows) {
-// copies elements from B[start_row+:n_rows][start_col+:n_col] to A[start_row+:n_rows][start_col+:n_col] 
-// matrices are collumnwise
-//INPUT: A , A matrix with height height_A
-//		 B , A matrix with height height_B
-//		 n_cols , the number of columns to be copied from B to A
-// 		 n_rows , the number of rows to be coiped from B to A
-
-if ( start_row_A + n_rows > height_A || start_row_B + n_rows > height_B ) {
-//Dimensions cannot be correct
-    std::cout << ("Dimension-error in tools.cpp: arrayToArray");
-}
-
-    for (long ii = 0; ii < n_cols; ii++) {
-
-        for (long jj = 0; jj < n_rows; jj ++) {
-
-            A[(start_col_A + ii)*height_A + jj + start_row_A] = B[(start_col_B + ii)*height_B + jj + start_row_B];
-
-        }
-    }
-
-
-/*
-    int x, y,i,j;
-
-    for (long ii = 0; ii < n_cols*n_rows; ii++) {
-        j = (ii/n_rows - (ii%n_cols));
-        i = (ii % n_cols);
-        x = (start_col_A + i )*height_A + j + start_row_A; 
-        y = (start_col_B + i )*height_B + j + start_row_B;
-
-    A[x] = B[y];
-
-    }
-*/
-}
-
-// print
-
-void Tools::print(auto str) {
-//Prints str to consoll
-//INPUT: str , any type
-
-    std::cout << str << "\n";
-}
-
-
-
-void Tools::print(std::string str) {
-//Prints str to consoll
-//INPUT: str , a string
-
-    std::cout << str << "\n";
-}
-
-
-
-void Tools::print(char* str) {
-//Prints str to consoll
-//INPUT: str , a string
-
-    std::cout << str << "\n";
-}
-
-
-void Tools::print(double* vec, long n, long m){
-//Prints array with n rows and m cols
-//INPUT: vec , an array of length n*m
-// 		 n , number of rows to print vec in
-//		 m , number of cols to print vec in
-
-    std::string str;
-
-    for (long ii = 0; ii < n; ii++) {
-
-		for (long jj = 0; jj < m; jj++){
-
-            printf("%.10f\t", vec[ii + jj*n] );
-            std::cout << str;
-
+            printf("%.10f\t", vec[ii + jj*n_row] );
 		}
-
 		std::cout << "\n";
     }
-    std::cout << std::endl;
+    std::cout << "\n";
 }
 
 
