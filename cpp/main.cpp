@@ -66,12 +66,15 @@ int main(int argc, char ** argv ) {
 /*
     Tools::print(y,nnn,1);
 */  
-    std::cout << "max difference(rrKPM) = "<< prob1_obj.compareSolution(y) << "\n";
+    std::cout << "max difference(rrKPM) = "<< prob1_obj.compareSolution(y) << std::endl;
 
+    Problem prob2_obj(nnn,structure,type);
+    solve(prob2_obj.getM_A(),prob2_obj.getM_b(),prob2_obj.getM_n());
 
-    solve(prob1_obj.getM_A(),prob1_obj.getM_b(),prob1_obj.getM_n());
+//    std::cout << "x = \n";
+//    Tools::print(prob2_obj.getM_b(),nnn,1);
 
-    std::cout << "max difference(lapacke) = "<< prob1_obj.compareSolution(prob1_obj.getM_b()) << "\n";
+    std::cout << "max difference(lapacke) = "<< prob2_obj.compareSolution(prob2_obj.getM_b()) << std::endl;
 
 
     //std::cout << INFO <<"\n";
