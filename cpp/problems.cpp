@@ -1,81 +1,96 @@
+#include "../../../lapack-3.7.0/CBLAS/include/cblas.h"
+
 #include <math.h> // for fabs
-#include <limits.h>
+
+#include <cstdlib>  // for rand() and srand()
+#include <ctime>    // for time()
+#include <limits>   // for RAND_MAX
 
 #include "problems.h"
 #include "tools.h"
 
 
-///////////////Problem///////////////
+double randomNumber(long seed) {
 
-void Problem::setProblem(long n, long t_n, double *solution) {
+    srand((u_int)(time(0)) + seed);
 
-    m_n = n;
-    m_t_n = t_n;
-
-    
-    m_solution = solution;
+    return ((double)rand()/RAND_MAX)*2-1;
 
 }
 
+double niceNumber(long ii) {
+
+    static double counter = 0;
+
+    counter += 1;
+    
+    return counter;
+}
+    
+
+
+///////////////Problem///////////////
+Problem::Problem(long n,std::string structure="diagonal", std::string type = "nice") {
+
+    m_A = Tools::initArray(n*n);
+    m_x = Tools::initArray(n);
+    m_b = Tools::initArray(n);
+    m_n = n;
+
+    double (*f_pntr)(long);
+
+    if ( type.compare("nice") ) {
+
+        f_pntr = randomNumber;
+
+    } else if (type.compare("random")) {
+
+        f_pntr = niceNumber;
+
+    }
+
+    if ( !structure.compare("diagonal") ) {
+
+        for (long ii = 0; ii < m_n; ii++ ) {
+
+            m_A[ii + m_n*ii] = f_pntr(ii);
+            m_x[ii] = f_pntr(ii);
+
+        }
+
+    } else if (!structure.compare("dense")) {
+    
+        for( long ii = 0; ii < m_n*m_n; ii++) {
+
+            m_A[ii] = f_pntr(ii); 
+
+        }
+
+        for( long ii = 0; ii < m_n; ii++) {
+
+            m_x[ii] = f_pntr(ii); 
+
+        }
+
+    } 
+
+    int inc = 1;
+    cblas_dgemv(CblasColMajor,CblasNoTrans,m_n,m_n,1.0,m_A,m_n,m_x,inc,0.0,m_b, inc);
+
+
+}
+
+
 double Problem::compareSolution(double *F) {
 
-    double max_diff = fabs(F[0] - m_solution[0] );
+    double max_diff = fabs(F[0] - m_x[0] );
     double diff;
 
     for (int ii = 0; ii < m_n; ii ++) {
 
-        for (int jj = 0; jj < m_t_n; jj ++) {
-
-            diff = fabs(F[jj*m_n + ii] - m_solution[jj*m_n + ii] );
+            diff = fabs(F[ii] - m_x[ii] );
             max_diff = ( max_diff < diff ) ? diff : max_diff ;
-        }
     }
     return max_diff;
 }
 
-////////////////Test1////////////////
-
-Test1::Test1(long n,long t_n) /*: Problem()*/ {
-
-    double value = (double) 1/(n);
-
-    // set parent attr
-    double *solution = Tools::initArray(n*t_n); // u = v*f*x
-
-    for (int ii = 0; ii < n; ii++) {
-
-        for (int jj = 0; jj < t_n; jj++) {
-
-            solution[jj*n + ii] = value*ii;
-        }
-    }
-
-    setProblem( n, t_n, solution);
-
-    // instanciate variables
-
-    m_v = Tools::initArray(m_n);               // v = ones(n,1);
-    m_A = Tools::initArray(m_n*m_n);           // A[ii][ii] = -1/m_t_s, A[ii][ii+1] = 1/m_t_s
-
-    for (int ii = 0; ii < m_n-1; ii++) {
-
-        m_v[ii] = 1;
-
-        m_A[ii*m_n +ii] = - value;
-        m_A[ii*m_n +ii+m_n] = value;
-    }
-
-    m_v[m_n-1] = 1;
-    m_A[m_n*m_n-1] = -value;    
-    
-    m_f = Tools::initArray(m_t_n);             // f = ones(n,1);
-
-    for (int ii = 0; ii < m_t_n; ii++) {
-    
-        m_f[ii] = 1;                
-    } 
-
-    
-
-
-}

@@ -120,7 +120,7 @@ int solve(double *A, double *b,long nnn) {
 double * project(double *A, double *b,  long nnn, long nnn_f, long max_restarts, 
                  long depth, long max_depth, double tol,long fs(long,long),int sol_met(double*,double*,long) ) {
 
-    std::cout << "depth: " << depth << "\n";
+
 
     long mmm = fs(nnn,nnn_f);
 
@@ -135,15 +135,15 @@ double * project(double *A, double *b,  long nnn, long nnn_f, long max_restarts,
     double * y = Tools::initArray(nnn);
     double * x = Tools::initArray(mmm);
 
+    //std::cout << "depth: " << depth << "\n";
+    //std::cout << "mmm = " << mmm << "\n";
 
-    std::cout << "mmm = " << mmm << "\n";
 
 
+    //new_eps = arnoldi(A,b,nnn,mmm,tol,H,V);
 
-    new_eps = arnoldi(A,b,nnn,mmm,tol,H,V);
-
-    x[0] = eps;
-
+    x[mmm-1] = -1;
+/*
     if (mmm == nnn_f || depth >= max_depth) {
         int INFO = sol_met(H,x,mmm);
     } else {
@@ -160,34 +160,45 @@ double * project(double *A, double *b,  long nnn, long nnn_f, long max_restarts,
     std::cout <<"eps = " << eps << ", tol = " << tol << ", itr = " << itr << ", max_restarts = " << max_restarts << "\n";
     std::cout << "=============================================================================\n";
     eps = new_eps;
+*/
+
     do {
 
         new_eps = arnoldi(A,b,nnn,mmm,tol,H,V);
         
 
         //x = eps*x[-1]
-        x[0] = eps*x[mmm-1];
+        x[0] = -eps*x[mmm-1];
         ptr = &x[1];
         memset(ptr, 0, (mmm-1)*sizeof(double));
-
+/*
         std::cout << "x = \n";
         Tools::print(x,mmm,1);
 
         std::cout <<"eps = " << eps << ", tol = " << tol << ", itr = " << itr << ", max_restarts = " << max_restarts << "\n";
         std::cout << "=============================================================================\n";
-
+*/
         //x = A\x
-        int INFO = sol_met(H,x,mmm);
+        if (mmm == nnn_f || depth >= max_depth) {
+            int INFO = sol_met(H,x,mmm);
 
-        std::cout << "(after)x = \n";
-        Tools::print(x,mmm,1);
+            //std::cout << "(after)x = \n";
+            //Tools::print(x,mmm,1);
+        } else {
+            x = project(H, x, mmm, nnn_f, max_restarts, depth+1, max_depth, tol, fs, sol_met );
 
-        //y += V*x
-        cblas_dgemv(CblasColMajor,CblasNoTrans,nnn,mmm,-1.0,V,nnn,x,inc,1.0,y, inc);
+        }
+        //y -= V*x
+        cblas_dgemv(CblasColMajor,CblasNoTrans,nnn,mmm,+1.0,V,nnn,x,inc,1.0,y, inc);
+
+        //std::cout << "y = \n";
+        //Tools::print(y,nnn,1);
 
         eps = new_eps;
         itr += 1;
-    } while (eps*x[mmm-1] > tol && itr < max_restarts);
+    } while (fabs(eps*x[mmm-1]) > tol && itr < max_restarts);
+
+    //std::cout << "depth: " << depth << ", mmm = " << mmm << ", itr = " << itr << "\n";
     return y;
 }
 /*
